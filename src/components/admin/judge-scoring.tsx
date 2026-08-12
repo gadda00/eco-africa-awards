@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { CRITERIA, computeTotal } from "@/lib/scoring";
 
 type NominationForJudge = {
   id: string;
@@ -40,15 +41,6 @@ type NominationForJudge = {
   } | null;
 };
 
-const CRITERIA = [
-  { key: "scoreImpact", label: "Impact", weight: 25, description: "Measurable climate outcomes — ecological, social, economic." },
-  { key: "scoreInnovation", label: "Innovation", weight: 18, description: "Originality of approach and problem framing." },
-  { key: "scoreScale", label: "Scale & Replicability", weight: 17, description: "Reach today and potential to scale across contexts." },
-  { key: "scoreSustainability", label: "Sustainability", weight: 15, description: "Durability beyond the intervention or grant cycle." },
-  { key: "scoreLeadership", label: "Leadership", weight: 15, description: "Mentorship, pipeline-building, and influence beyond the work." },
-  { key: "scoreEquity", label: "Equity & Inclusion", weight: 10, description: "Centre on women, youth, indigenous knowledge, frontline communities." },
-] as const;
-
 const RECOMMENDATIONS = ["SELECT", "SHORTLIST", "DECLINE"];
 
 export function JudgeScoringClient({ nomination }: { nomination: NominationForJudge }) {
@@ -68,11 +60,8 @@ export function JudgeScoringClient({ nomination }: { nomination: NominationForJu
   const [coiDeclared, setCoiDeclared] = useState(existing?.coiDeclared ?? false);
   const [saving, setSaving] = useState(false);
 
-  // Weighted total score (0-10)
-  // Each criterion scored 0-10, weighted (weights sum to 1), result on 0-10 scale.
-  const totalScore = CRITERIA.reduce((sum, c) => {
-    return sum + scores[c.key] * (c.weight / 100);
-  }, 0);
+  // Weighted total score (0-10) — shared with server via @/lib/scoring
+  const totalScore = computeTotal(scores as any);
 
   const updateScore = (key: string, value: number) => {
     setScores((s) => ({ ...s, [key]: Math.max(0, Math.min(10, value)) }));

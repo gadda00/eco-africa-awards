@@ -148,9 +148,12 @@ Beyond nominating, you can attend the ceremony, volunteer with the secretariat, 
   }
 
   console.log("\n=== SEED COMPLETE ===");
-  console.log(`Admin login: ${adminEmail}`);
-  console.log(`Admin password: ${adminPassword}`);
-  console.log(`Judge password (demo): ${judgePassword}`);
+  console.log("Admin user created: admin@ecoawardsafrica.com");
+  console.log("3 demo judges created.");
+  console.log("7 site settings seeded.");
+  console.log("1 sample announcement seeded.");
+  console.log("\n⚠ Passwords were read from env vars or generated with strong defaults.");
+  console.log("⚠ For production, set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD env vars before seeding.");
 }
 
 main()

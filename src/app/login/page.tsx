@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Leaf, Loader2, Lock, Mail, AlertCircle } from "lucide-react";
+import { Leaf, Loader2, Lock, Mail, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -14,6 +14,7 @@ function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,11 +33,13 @@ function LoginForm() {
     });
     setLoading(false);
     if (res?.error) {
-      setError("Invalid email or password.");
+      setError("Invalid email or password. Please try again.");
       return;
     }
-    router.push(callbackUrl);
-    router.refresh();
+    if (res?.url) {
+      router.push(callbackUrl);
+      router.refresh();
+    }
   };
 
   return (
@@ -45,43 +48,60 @@ function LoginForm() {
       className="rounded-2xl border border-forest/15 bg-card p-6 shadow-warm-lg space-y-4"
     >
       <div>
-        <label className="text-xs uppercase tracking-wider text-foreground/80 font-semibold mb-1.5 block">
+        <label htmlFor="login-email" className="text-xs uppercase tracking-wider text-foreground/80 font-semibold mb-1.5 block">
           Email
         </label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
+            id="login-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.org"
             className="pl-9"
             autoComplete="email"
-            autoFocus
+            required
+            aria-required="true"
           />
         </div>
       </div>
 
       <div>
-        <label className="text-xs uppercase tracking-wider text-foreground/80 font-semibold mb-1.5 block">
+        <label htmlFor="login-password" className="text-xs uppercase tracking-wider text-foreground/80 font-semibold mb-1.5 block">
           Password
         </label>
         <div className="relative">
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
-            type="password"
+            id="login-password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="pl-9"
+            className="pl-9 pr-10"
             autoComplete="current-password"
+            required
+            aria-required="true"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((s) => !s)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-forest"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </div>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-3 rounded-lg border border-terracotta/30 bg-terracotta/10 text-sm text-terracotta">
-          <AlertCircle className="h-4 w-4 flex-shrink-0" />
+        <div
+          className="flex items-center gap-2 p-3 rounded-lg border border-terracotta/30 bg-terracotta/10 text-sm text-terracotta"
+          role="alert"
+          aria-live="polite"
+        >
+          <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}
@@ -92,20 +112,11 @@ function LoginForm() {
         className="w-full bg-forest hover:bg-forest-light text-cream font-semibold h-11"
       >
         {loading ? (
-          <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" />Signing in…</>
+          <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" aria-hidden="true" />Signing in…</>
         ) : (
           "Sign in"
         )}
       </Button>
-
-      <div className="pt-3 border-t border-border/60 text-xs text-muted-foreground space-y-1.5">
-        <p className="font-semibold text-foreground/80">Demo credentials:</p>
-        <p><span className="font-medium text-forest">Admin:</span> admin@ecoawardsafrica.com / ACLA-Admin-2026!</p>
-        <p><span className="font-medium text-forest">Judge:</span> judge.kwame@example.org / Judge-2026!</p>
-        <p className="text-[10px] text-muted-foreground/70 mt-2">
-          Change these passwords in production via the admin panel.
-        </p>
-      </div>
     </form>
   );
 }
@@ -116,7 +127,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-forest to-forest-light shadow-forest mb-4">
-            <Leaf className="h-7 w-7 text-gold-light" />
+            <Leaf className="h-7 w-7 text-gold-light" aria-hidden="true" />
           </div>
           <h1 className="font-display text-2xl font-bold text-forest">Africa Climate Leadership Awards</h1>
           <p className="text-sm text-foreground/70 mt-1">Sign in to your account</p>

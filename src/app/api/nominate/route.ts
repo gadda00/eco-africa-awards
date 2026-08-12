@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { awardCategories } from "@/lib/data";
+import { nominateSchema } from "@/lib/validation";
+import { applyRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 function generateReferenceCode(prefix: string): string {
   const ts = Date.now().toString(36).toUpperCase().slice(-5);
@@ -8,28 +10,37 @@ function generateReferenceCode(prefix: string): string {
   return `${prefix}-${ts}${rand}`;
 }
 
-// POST /api/nominate
+// POST /api/nominate — submit a nomination
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
+  // Rate limit: 10 submissions per minute per IP
+  const limited = applyRateLimit(req, RATE_LIMITS.form, "nominate");
+  if (limited) {
+    return NextResponse.json(limited.body, { status: limited.status, headers: limited.headers });
+  }
 
-    // Minimal server-side validation
-    if (!body?.categoryId || !body?.nomineeName || !body?.nomineeCountry) {
-      return NextResponse.json({ error: "Missing required nominee fields" }, { status: 400 });
+  try {
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
-    if (!body?.nominatorName || !body?.nominatorEmail) {
-      return NextResponse.json({ error: "Missing required nominator fields" }, { status: 400 });
+
+    // Validate with Zod
+    const parsed = nominateSchema.safeParse(body);
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0];
+      return NextResponse.json(
+        {
+          error: firstError?.message ?? "Validation failed",
+          field: firstError?.path.join("."),
+        },
+        { status: 400 }
+      );
     }
-    if (!body?.summary || body.summary.length < 60) {
-      return NextResponse.json({ error: "Summary must be at least 60 characters" }, { status: 400 });
-    }
-    if (!body?.justification || body.justification.length < 200) {
-      return NextResponse.json({ error: "Justification must be at least 200 characters" }, { status: 400 });
-    }
-    if (!body?.confirmsConsent || !body?.confirmsTruthful || !body?.confirmsAfrican) {
-      return NextResponse.json({ error: "All confirmations are required" }, { status: 400 });
-    }
-    const validCat = awardCategories.find((c) => c.id === body.categoryId);
+    const data = parsed.data;
+
+    const validCat = awardCategories.find((c) => c.id === data.categoryId);
     if (!validCat) {
       return NextResponse.json({ error: "Invalid category" }, { status: 400 });
     }
@@ -39,78 +50,104 @@ export async function POST(req: NextRequest) {
     const nomination = await db.nomination.create({
       data: {
         referenceCode,
-        categoryId: body.categoryId,
-        nomineeName: body.nomineeName,
-        nomineeTitle: body.nomineeTitle ?? null,
-        nomineeOrg: body.nomineeOrg ?? null,
-        nomineeCountry: body.nomineeCountry,
-        nomineeEmail: body.nomineeEmail ?? null,
-        nomineePhone: body.nomineePhone ?? null,
-        nomineeWebsite: body.nomineeWebsite ?? null,
-        nomineeLinkedin: body.nomineeLinkedin ?? null,
-        selfNomination: !!body.selfNomination,
-        nominatorName: body.nominatorName,
-        nominatorEmail: body.nominatorEmail,
-        nominatorOrg: body.nominatorOrg ?? null,
-        nominatorRel: body.nominatorRel ?? null,
-        summary: body.summary,
-        justification: body.justification,
-        impactMetrics: body.impactMetrics ?? null,
-        supportingLinks: body.supportingLinks ?? null,
-        mediaUrl: body.mediaUrl ?? null,
-        confirmsConsent: !!body.confirmsConsent,
-        confirmsTruthful: !!body.confirmsTruthful,
-        confirmsAfrican: !!body.confirmsAfrican,
+        categoryId: data.categoryId,
+        nomineeName: data.nomineeName,
+        nomineeTitle: data.nomineeTitle ?? null,
+        nomineeOrg: data.nomineeOrg ?? null,
+        nomineeCountry: data.nomineeCountry,
+        nomineeEmail: data.nomineeEmail || null,
+        nomineePhone: data.nomineePhone ?? null,
+        nomineeWebsite: data.nomineeWebsite ?? null,
+        nomineeLinkedin: data.nomineeLinkedin ?? null,
+        selfNomination: data.selfNomination,
+        nominatorName: data.nominatorName,
+        nominatorEmail: data.nominatorEmail,
+        nominatorOrg: data.nominatorOrg ?? null,
+        nominatorRel: data.nominatorRel ?? null,
+        summary: data.summary,
+        justification: data.justification,
+        impactMetrics: data.impactMetrics ?? null,
+        supportingLinks: data.supportingLinks ?? null,
+        mediaUrl: data.mediaUrl ?? null,
+        confirmsConsent: data.confirmsConsent,
+        confirmsTruthful: data.confirmsTruthful,
+        confirmsAfrican: data.confirmsAfrican,
         status: "SUBMITTED",
+        submittedAt: new Date(),
       },
     });
 
     // Fire-and-forget: AI eligibility summary (best-effort, non-blocking)
     void aiSummarizeNomination(nomination.id, {
       categoryName: validCat.name,
-      nomineeName: body.nomineeName,
-      nomineeOrg: body.nomineeOrg,
-      summary: body.summary,
-      justification: body.justification,
-    }).catch(() => {});
+      nomineeName: data.nomineeName,
+      nomineeOrg: data.nomineeOrg,
+      summary: data.summary,
+      justification: data.justification,
+    }).catch((e) => console.warn("AI summarise failed (non-blocking):", e?.message));
 
-    return NextResponse.json({
-      ok: true,
-      referenceCode: nomination.referenceCode,
-      nominationId: nomination.id,
-    });
+    return NextResponse.json(
+      {
+        ok: true,
+        referenceCode: nomination.referenceCode,
+        nominationId: nomination.id,
+      },
+      { status: 201 }
+    );
   } catch (e: any) {
     console.error("Nominate error:", e);
-    return NextResponse.json({ error: e?.message ?? "Failed to submit" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to submit nomination" }, { status: 500 });
   }
 }
 
-// GET /api/nominate — fetch a nomination by reference code (status check)
+// GET /api/nominate?ref=EAA-XXXX — minimal status lookup
+// Returns only the public-facing status, not the full record (privacy-first).
 export async function GET(req: NextRequest) {
+  // Rate limit: 60 reads per minute per IP
+  const limited = applyRateLimit(req, RATE_LIMITS.read, "nominate-get");
+  if (limited) {
+    return NextResponse.json(limited.body, { status: limited.status, headers: limited.headers });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const ref = searchParams.get("ref");
     if (!ref) {
       return NextResponse.json({ error: "Missing ?ref= reference code" }, { status: 400 });
     }
+
+    // Sanitize: ref codes are alphanumeric + hyphens, max 20 chars
+    const sanitizedRef = ref.toUpperCase().trim().slice(0, 20);
+    if (!/^[A-Z0-9-]+$/.test(sanitizedRef)) {
+      return NextResponse.json({ error: "Invalid reference code format" }, { status: 400 });
+    }
+
     const nomination = await db.nomination.findUnique({
-      where: { referenceCode: ref.toUpperCase() },
+      where: { referenceCode: sanitizedRef },
       select: {
         referenceCode: true,
         categoryId: true,
-        nomineeName: true,
-        nomineeCountry: true,
         status: true,
         createdAt: true,
         updatedAt: true,
       },
     });
+
     if (!nomination) {
       return NextResponse.json({ error: "Nomination not found" }, { status: 404 });
     }
-    return NextResponse.json({ ok: true, nomination });
+
+    // Return only the status (no nominee name, no nominator email)
+    return NextResponse.json({
+      ok: true,
+      status: nomination.status,
+      referenceCode: nomination.referenceCode,
+      submittedAt: nomination.createdAt,
+      lastUpdated: nomination.updatedAt,
+    });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message }, { status: 500 });
+    console.error("Nominate GET error:", e);
+    return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }
 
@@ -137,8 +174,7 @@ async function aiSummarizeNomination(
         },
         {
           role: "user",
-          content:
-            `Category: ${input.categoryName}\nNominee: ${input.nomineeName}\nOrg: ${input.nomineeOrg ?? "n/a"}\n\nSummary:\n${input.summary}\n\nJustification:\n${input.justification}`,
+          content: `Category: ${input.categoryName}\nNominee: ${input.nomineeName}\nOrg: ${input.nomineeOrg ?? "n/a"}\n\nSummary:\n${input.summary}\n\nJustification:\n${input.justification}`,
         },
       ],
       temperature: 0.3,
@@ -170,6 +206,8 @@ async function aiSummarizeNomination(
       await db.aiUsageLog.create({
         data: { feature: "ai_eligibility", success: false, tokens: 0 },
       });
-    } catch {}
+    } catch {
+      /* no-op */
+    }
   }
 }

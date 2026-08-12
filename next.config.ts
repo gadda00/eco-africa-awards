@@ -5,9 +5,14 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
   reactStrictMode: false,
   images: {
+    // Only allow image optimization from trusted hostnames.
+    // Add more as needed (e.g., your CDN, cloudinary, etc.)
     remotePatterns: [
-      { protocol: "https", hostname: "**" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "**.cloudinary.com" },
     ],
+    dangerouslyAllowSVG: false,
   },
 };
 

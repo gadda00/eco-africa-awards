@@ -50,6 +50,22 @@ export default async function JudgeNominationPage({ params }: { params: Promise<
 
   if (!nomination) notFound();
 
+  // Enforce category-assignment check for judges (admins can review any)
+  if (session.user.role === "JUDGE") {
+    const judge = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { assignedCategories: true },
+    });
+    const assigned: string[] = judge?.assignedCategories
+      ? (() => {
+          try { return JSON.parse(judge.assignedCategories); } catch { return []; }
+        })()
+      : [];
+    if (!assigned.includes(nomination.categoryId)) {
+      notFound();
+    }
+  }
+
   const flat = {
     ...nomination,
     createdAt: nomination.createdAt.toISOString(),

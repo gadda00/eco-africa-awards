@@ -135,9 +135,14 @@ export function NominationDetailClient({ nomination }: { nomination: NominationD
     }
   };
 
-  const aiEligibility = nomination.aiEligibility
-    ? JSON.parse(nomination.aiEligibility)
-    : null;
+  const aiEligibility = (() => {
+    try {
+      return nomination.aiEligibility ? JSON.parse(nomination.aiEligibility) : null;
+    } catch {
+      console.warn("Malformed aiEligibility JSON for nomination", nomination.id);
+      return null;
+    }
+  })();
 
   return (
     <div className="max-w-6xl">

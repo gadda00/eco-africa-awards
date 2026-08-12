@@ -4,10 +4,30 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 
+// Enforce secret in production runtime — fail fast rather than silently use a fallback.
+// Note: we use a placeholder at build time so the build doesn't fail when operators
+// haven't yet set the env var (Netlify will inject it at runtime).
+const NEXTAUTH_SECRET =
+  process.env.NEXTAUTH_SECRET ||
+  (process.env.NODE_ENV === "production" && process.env.NEXT_PHASE === "phase-production-server"
+    ? null // Force runtime to require NEXTAUTH_SECRET
+    : "dev-only-secret-do-not-use-in-production-please-set-NEXTAUTH_SECRET");
+
+if (NEXTAUTH_SECRET === null) {
+  throw new Error(
+    "NEXTAUTH_SECRET environment variable is required in production. Set it to a 32+ character random string."
+  );
+}
+
+const FALLBACK_SECRET = "dev-only-secret-do-not-use-in-production-please-set-NEXTAUTH_SECRET";
+
+// Note: this must match the secret used in src/middleware.ts (getToken).
+// Both fall back to FALLBACK_SECRET when NEXTAUTH_SECRET is unset (dev only).
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
-  secret: process.env.NEXTAUTH_SECRET || "dev-only-secret-change-in-production",
+  secret: NEXTAUTH_SECRET ?? FALLBACK_SECRET,
   pages: {
     signIn: "/login",
   },
@@ -68,7 +88,38 @@ export const authOptions: NextAuthOptions = {
             entityId: (user as any).id,
           },
         });
-      } catch {}
+      } catch (e) {
+        // Audit log failure should not block login
+        console.warn("Audit log failed for user.login event:", e);
+      }
+    },
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
     },
   },
 };

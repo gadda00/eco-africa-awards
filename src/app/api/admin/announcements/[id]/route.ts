@@ -1,35 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin, audit } from "@/lib/auth-guards";
+import { updateAnnouncementSchema } from "@/lib/validation";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
   const guard = await requireAdmin();
   if (!guard.ok) return NextResponse.json({ error: guard.message }, { status: guard.status });
 
   try {
-    const body = await req.json();
-    const updates: any = {};
-    for (const k of ["title", "slug", "excerpt", "body", "category"]) {
-      if (typeof body[k] === "string") updates[k] = body[k];
-    }
-    if (typeof body.isPublished === "boolean") updates.isPublished = body.isPublished;
-    if (typeof body.isPinned === "boolean") updates.isPinned = body.isPinned;
-    if (body.publishedAt !== undefined) {
-      updates.publishedAt = body.publishedAt ? new Date(body.publishedAt) : null;
+    const { id } = await params;
+
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const updated = await db.announcement.update({
-      where: { id: id },
-      data: updates,
+    const parsed = updateAnnouncementSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Validation failed" },
+        { status: 400 }
+      );
+    }
+    const updates = parsed.data;
+
+    const existing = await db.announcement.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) {
+      return NextResponse.json({ error: "Announcement not found" }, { status: 404 });
+    }
+
+    const prismaUpdate: any = {};
+    for (const [k, v] of Object.entries(updates)) {
+      if (k === "publishedAt") {
+        prismaUpdate.publishedAt = v ? new Date(v) : null;
+      } else if (v !== undefined) {
+        prismaUpdate[k] = v;
+      }
+    }
+
+    await db.announcement.update({
+      where: { id },
+      data: prismaUpdate,
     });
-    await audit(guard.user.id, "announcement.update", "announcement", id, updates);
+    await audit(guard.user.id, "announcement.update", "announcement", id, prismaUpdate);
+
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? "Failed" }, { status: 500 });
+    if (e?.code === "P2002") {
+      return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+    }
+    console.error("Announcement PATCH error:", e);
+    return NextResponse.json({ error: "Failed to update announcement" }, { status: 500 });
   }
 }
 
@@ -41,10 +67,19 @@ export async function DELETE(
   if (!guard.ok) return NextResponse.json({ error: guard.message }, { status: guard.status });
 
   try {
-    await db.announcement.delete({ where: { id: id } });
+    const { id } = await params;
+
+    const existing = await db.announcement.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) {
+      return NextResponse.json({ error: "Announcement not found" }, { status: 404 });
+    }
+
+    await db.announcement.delete({ where: { id } });
     await audit(guard.user.id, "announcement.delete", "announcement", id);
+
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? "Failed" }, { status: 500 });
+    console.error("Announcement DELETE error:", e);
+    return NextResponse.json({ error: "Failed to delete announcement" }, { status: 500 });
   }
 }

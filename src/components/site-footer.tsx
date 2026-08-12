@@ -5,22 +5,24 @@ import { Mail, Phone, MapPin, Twitter, Linkedin, Youtube, Instagram, ArrowUpRigh
 import { siteConfig } from "@/lib/site-config";
 
 const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Categories", href: "#categories" },
-  { label: "Nominate", href: "#nominate" },
-  { label: "Selection", href: "#selection" },
-  { label: "Timeline", href: "#timeline" },
-  { label: "Winners", href: "#winners" },
-  { label: "Ceremony", href: "#ceremony" },
-  { label: "FAQ", href: "#faq" },
+  { label: "About", href: "/about" },
+  { label: "Categories", href: "/#categories" },
+  { label: "Nominate", href: "/#nominate" },
+  { label: "Selection", href: "/#selection" },
+  { label: "Timeline", href: "/#timeline" },
+  { label: "Winners", href: "/winners" },
+  { label: "Ceremony", href: "/ceremony" },
+  { label: "Judges", href: "/judges" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 const resourceLinks = [
-  { label: "ACLA Knowledge Hub", href: siteConfig.parentOrgUrl },
-  { label: "Code of Conduct", href: "#" },
-  { label: "Privacy Notice", href: "#" },
-  { label: "Press Kit", href: "#" },
-  { label: "Volunteer", href: "#contact" },
+  { label: "ACLA Knowledge Hub", href: siteConfig.parentOrgUrl, external: true },
+  { label: "News & Announcements", href: "/news", external: false },
+  { label: "Code of Conduct", href: "/code-of-conduct", external: false },
+  { label: "Privacy Notice", href: "/privacy", external: false },
+  { label: "Sponsors & Partners", href: "/sponsors", external: false },
+  { label: "Contact", href: "/#contact", external: false },
 ];
 
 export function SiteFooter() {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin, audit } from "@/lib/auth-guards";
+import { bulkNominationSchema } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   const guard = await requireAdmin();
@@ -9,57 +10,68 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
-    const { ids, action } = body;
-
-    if (!Array.isArray(ids) || ids.length === 0) {
-      return NextResponse.json({ error: "ids must be a non-empty array" }, { status: 400 });
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    if (action === "setStatus") {
-      const { status } = body;
-      const valid = ["SUBMITTED", "UNDER_REVIEW", "SHORTLISTED", "FINALIST", "WINNER", "NOT_SELECTED"];
-      if (!valid.includes(status)) {
-        return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-      }
+    const parsed = bulkNominationSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Validation failed" },
+        { status: 400 }
+      );
+    }
+    const { ids, action, status } = parsed.data;
 
-      // Fetch current state for audit
+    if (action === "setStatus") {
+      // Fetch current state for audit + status change records (transaction-safe)
       const current = await db.nomination.findMany({
         where: { id: { in: ids } },
         select: { id: true, status: true },
       });
 
-      // Update all
-      const result = await db.nomination.updateMany({
-        where: { id: { in: ids } },
-        data: { status },
-      });
-
-      // Create status change records for those whose status actually changed
-      const changes = current.filter((c) => c.status !== status);
-      if (changes.length > 0) {
-        await db.statusChange.createMany({
-          data: changes.map((c) => ({
-            nominationId: c.id,
-            changedById: guard.user.id,
-            fromStatus: c.status,
-            toStatus: status,
-          })),
-        });
+      if (current.length === 0) {
+        return NextResponse.json({ error: "No matching nominations found" }, { status: 404 });
       }
 
+      const changes = current.filter((c) => c.status !== status);
+
+      // Transaction: update all + create status change records for those that changed
+      const [updateResult] = await db.$transaction([
+        db.nomination.updateMany({
+          where: { id: { in: ids } },
+          data: { status },
+        }),
+        ...(changes.length > 0
+          ? [
+              db.statusChange.createMany({
+                data: changes.map((c) => ({
+                  nominationId: c.id,
+                  changedById: guard.user.id,
+                  fromStatus: c.status,
+                  toStatus: status,
+                })),
+              }),
+            ]
+          : []),
+      ]);
+
       await audit(guard.user.id, "nomination.bulk_status_change", "nomination", null, {
-        count: result.count,
+        count: updateResult.count,
         from_statuses: changes.map((c) => c.status),
         to: status,
+        ids,
       });
 
-      return NextResponse.json({ ok: true, updated: result.count });
+      return NextResponse.json({ ok: true, updated: updateResult.count });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (e: any) {
     console.error("Admin bulk action error:", e);
-    return NextResponse.json({ error: e?.message ?? "Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Bulk update failed" }, { status: 500 });
   }
 }

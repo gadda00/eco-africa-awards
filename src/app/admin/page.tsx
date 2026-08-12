@@ -202,7 +202,7 @@ export default async function AdminDashboard() {
                 <div className="w-40 text-sm text-foreground truncate">{c.nomineeCountry}</div>
                 <div className="flex-1 h-7 rounded-lg bg-secondary/60 overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-forest to-gold rounded-lg flex items-center justify-end pr-2 transition-all" style={{ width: `${pct}%` }}>
-                    <span className="text-xs font-bold text-cream tabular-nums">{c._count.nomineeCountry}</span>
+                    <span className="text-xs font-bold text-cream tabular-nums">{c._count}</span>
                   </div>
                 </div>
               </div>

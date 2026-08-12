@@ -1,10 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { aiAssistSchema } from "@/lib/validation";
+import { applyRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 // POST /api/ai-assist — review a nomination draft
 export async function POST(req: NextRequest) {
+  const limited = applyRateLimit(req, RATE_LIMITS.ai, "ai-assist");
+  if (limited) {
+    return NextResponse.json(limited.body, { status: limited.status, headers: limited.headers });
+  }
+
   try {
-    const body = await req.json();
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const parsed = aiAssistSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Validation failed" },
+        { status: 400 }
+      );
+    }
     const {
       categoryName,
       categoryCriteria = [],
@@ -13,14 +33,7 @@ export async function POST(req: NextRequest) {
       nomineeOrg,
       summary,
       justification,
-    } = body ?? {};
-
-    if (!summary || !justification) {
-      return NextResponse.json(
-        { error: "Both summary and justification are required" },
-        { status: 400 }
-      );
-    }
+    } = parsed.data;
 
     // Build prompt for the LLM
     const criteriaList =

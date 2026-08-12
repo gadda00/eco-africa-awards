@@ -6,13 +6,46 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, MapPin, Building2, Trophy, Quote, Sparkles } from "lucide-react";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+type Params = { year: string; slug: string };
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { slug } = await params;
+  const winner = await db.nomination.findUnique({
+    where: { id: slug },
+    select: { nomineeName: true, winnerHighlight: true, nomineeCountry: true, categoryId: true, isPublic: true, status: true, winnerYear: true },
+  });
+  if (!winner || !winner.isPublic || winner.status !== "WINNER") {
+    return { title: "Winner Not Found" };
+  }
+  const category = awardCategories.find((c) => c.id === winner.categoryId);
+  const title = `${winner.nomineeName} — ${winner.winnerYear} ${category?.shortName ?? "Award"} Winner`;
+  const description = winner.winnerHighlight || `Meet ${winner.nomineeName}, ${category?.name ?? "Award"} winner of the Africa Climate Leadership Awards.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `https://ecoawardsafrica.com/winners/${winner.winnerYear}/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `https://ecoawardsafrica.com/winners/${winner.winnerYear}/${slug}`,
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
 
 export default async function WinnerProfilePage({
   params,
 }: {
-  params: Promise<{ year: string; slug: string }>;
+  params: Promise<Params>;
 }) {
   const { year, slug } = await params;
   const winner = await db.nomination.findUnique({

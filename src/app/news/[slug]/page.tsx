@@ -5,10 +5,38 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArrowLeft, ArrowRight, Megaphone, Calendar } from "lucide-react";
 import Markdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+type Params = { slug: string };
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { slug } = await params;
+  const a = await db.announcement.findUnique({ where: { slug }, select: { title: true, excerpt: true, category: true, publishedAt: true } });
+  if (!a) return { title: "Article Not Found" };
+  return {
+    title: a.title,
+    description: a.excerpt,
+    alternates: { canonical: `https://ecoawardsafrica.com/news/${slug}` },
+    openGraph: {
+      title: a.title,
+      description: a.excerpt,
+      url: `https://ecoawardsafrica.com/news/${slug}`,
+      type: "article",
+      publishedTime: a.publishedAt?.toISOString(),
+      tags: [a.category],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: a.title,
+      description: a.excerpt,
+    },
+  };
+}
+
+export default async function NewsArticlePage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const a = await db.announcement.findUnique({
     where: { slug },
@@ -60,7 +88,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
             <p className="mt-5 text-xl text-foreground/70 leading-relaxed">{a.excerpt}</p>
 
             <div className="mt-10 prose prose-lg max-w-none prose-headings:font-display prose-headings:text-forest prose-a:text-forest prose-strong:text-foreground">
-              <Markdown>{a.body}</Markdown>
+              <Markdown rehypePlugins={[rehypeSanitize]}>{a.body}</Markdown>
             </div>
           </div>
         </article>

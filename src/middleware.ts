@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
+// Must match the secret used in @/lib/auth.ts
+const AUTH_SECRET =
+  process.env.NEXTAUTH_SECRET ?? "dev-only-secret-do-not-use-in-production-please-set-NEXTAUTH_SECRET";
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -13,7 +17,7 @@ export async function middleware(req: NextRequest) {
   // Check for session token
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET || "dev-only-secret-change-in-production",
+    secret: AUTH_SECRET,
   });
 
   if (!token) {

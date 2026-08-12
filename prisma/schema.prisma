@@ -146,6 +146,9 @@ model Nomination {
   @@index([status])
   @@index([nomineeCountry])
   @@index([winnerYear])
+  @@index([nominatorEmail])
+  @@index([nomineeEmail])
+  @@index([createdAt])
 }
 
 model Review {
@@ -174,6 +177,8 @@ model Review {
 
   @@unique([nominationId, judgeId])
   @@index([nominationId])
+  @@index([judgeId])
+  @@index([totalScore])
 }
 
 model StatusChange {
@@ -225,6 +230,7 @@ model ContactMessage {
 
   @@index([status])
   @@index([category])
+  @@index([createdAt])
 }
 
 model NewsletterSubscriber {

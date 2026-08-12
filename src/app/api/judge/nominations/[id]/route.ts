@@ -1,62 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireJudgeOrAdmin, audit } from "@/lib/auth-guards";
-import { awardCategories } from "@/lib/data";
-
-const CRITERIA_WEIGHTS = {
-  scoreImpact: 0.25,
-  scoreInnovation: 0.18,
-  scoreScale: 0.17,
-  scoreSustainability: 0.15,
-  scoreLeadership: 0.15,
-  scoreEquity: 0.10,
-} as const;
-
-function computeTotal(scores: Record<string, number>): number {
-  // Each criterion scored 0-10, weighted, result on 0-10 scale.
-  // weighted_avg = sum(score_i * weight_i) / sum(weight_i)
-  // weights sum to 1, so result is naturally on 0-10 scale (since each score is 0-10).
-  const total = Object.entries(CRITERIA_WEIGHTS).reduce((sum, [key, weight]) => {
-    return sum + (scores[key] ?? 0) * weight;
-  }, 0);
-  return Math.round(total * 10) / 10; // 0-10 with one decimal
-}
+import { judgeReviewSchema } from "@/lib/validation";
+import { computeTotal } from "@/lib/scoring";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
   const guard = await requireJudgeOrAdmin();
   if (!guard.ok) {
     return NextResponse.json({ error: guard.message }, { status: guard.status });
   }
 
   try {
-    const body = await req.json();
-    const {
-      scoreImpact, scoreInnovation, scoreScale, scoreSustainability,
-      scoreLeadership, scoreEquity, comments, recommendation, coiDeclared,
-    } = body;
+    const { id } = await params;
 
-    // Validate scores
-    const scores = { scoreImpact, scoreInnovation, scoreScale, scoreSustainability, scoreLeadership, scoreEquity };
-    for (const [k, v] of Object.entries(scores)) {
-      const n = parseInt(String(v), 10);
-      if (isNaN(n) || n < 0 || n > 10) {
-        return NextResponse.json({ error: `${k} must be an integer 0-10` }, { status: 400 });
-      }
-      scores[k as keyof typeof scores] = n as any;
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    if (!["SELECT", "SHORTLIST", "DECLINE"].includes(recommendation)) {
-      return NextResponse.json({ error: "Invalid recommendation" }, { status: 400 });
+    const parsed = judgeReviewSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Validation failed" },
+        { status: 400 }
+      );
     }
-    if (!coiDeclared) {
-      return NextResponse.json({ error: "COI declaration required" }, { status: 400 });
-    }
+    const scores = {
+      scoreImpact: parsed.data.scoreImpact,
+      scoreInnovation: parsed.data.scoreInnovation,
+      scoreScale: parsed.data.scoreScale,
+      scoreSustainability: parsed.data.scoreSustainability,
+      scoreLeadership: parsed.data.scoreLeadership,
+      scoreEquity: parsed.data.scoreEquity,
+    };
 
-    const nomination = await db.nomination.findUnique({ where: { id: id } });
+    const nomination = await db.nomination.findUnique({
+      where: { id },
+      select: { id: true, categoryId: true, status: true },
+    });
     if (!nomination) {
       return NextResponse.json({ error: "Nomination not found" }, { status: 404 });
     }
@@ -67,17 +53,18 @@ export async function POST(
         where: { id: guard.user.id },
         select: { assignedCategories: true },
       });
-      const assigned: string[] = judge?.assignedCategories
-        ? JSON.parse(judge.assignedCategories)
-        : [];
+      const assigned: string[] = judge?.assignedCategories ? JSON.parse(judge.assignedCategories) : [];
       if (!assigned.includes(nomination.categoryId)) {
-        return NextResponse.json({ error: "Not assigned to this category" }, { status: 403 });
+        return NextResponse.json(
+          { error: "You are not assigned to this category" },
+          { status: 403 }
+        );
       }
     }
 
     const totalScore = computeTotal(scores);
 
-    // Upsert review
+    // Upsert review (atomic)
     const review = await db.review.upsert({
       where: {
         nominationId_judgeId: {
@@ -90,30 +77,31 @@ export async function POST(
         judgeId: guard.user.id,
         ...scores,
         totalScore,
-        comments: comments || null,
-        recommendation,
-        coiDeclared: !!coiDeclared,
+        comments: parsed.data.comments || null,
+        recommendation: parsed.data.recommendation,
+        coiDeclared: parsed.data.coiDeclared,
       },
       update: {
         ...scores,
         totalScore,
-        comments: comments || null,
-        recommendation,
-        coiDeclared: !!coiDeclared,
+        comments: parsed.data.comments || null,
+        recommendation: parsed.data.recommendation,
+        coiDeclared: parsed.data.coiDeclared,
       },
     });
 
-    // Recompute nomination aggregate score
+    // Recompute nomination aggregate score in a transaction
     const allReviews = await db.review.findMany({
       where: { nominationId: id },
       select: { totalScore: true },
     });
-    const avg = allReviews.length > 0
-      ? Math.round((allReviews.reduce((s, r) => s + r.totalScore, 0) / allReviews.length) * 100) / 100
-      : null;
+    const avg =
+      allReviews.length > 0
+        ? Math.round((allReviews.reduce((s, r) => s + r.totalScore, 0) / allReviews.length) * 100) / 100
+        : null;
 
     await db.nomination.update({
-      where: { id: id },
+      where: { id },
       data: {
         totalScore: avg,
         reviewsCount: allReviews.length,
@@ -124,18 +112,17 @@ export async function POST(
     await audit(guard.user.id, "review.submit", "review", review.id, {
       nominationId: id,
       totalScore,
-      recommendation,
+      recommendation: parsed.data.recommendation,
     });
 
-    return NextResponse.json({ ok: true, reviewId: review.id, totalScore });
+    return NextResponse.json({ ok: true, reviewId: review.id, totalScore }, { status: 201 });
   } catch (e: any) {
     console.error("Judge review POST error:", e);
-    return NextResponse.json({ error: e?.message ?? "Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to submit review" }, { status: 500 });
   }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
   // PATCH is the same as POST (upsert) for judges
   return POST(req, { params });
 }

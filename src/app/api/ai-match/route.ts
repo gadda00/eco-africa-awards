@@ -1,19 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { awardCategories } from "@/lib/data";
+import { aiMatchSchema } from "@/lib/validation";
+import { applyRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 // POST /api/ai-match — match a nominee description to top categories
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const description: string = String(body?.description ?? "").trim();
+  const limited = applyRateLimit(req, RATE_LIMITS.ai, "ai-match");
+  if (limited) {
+    return NextResponse.json(limited.body, { status: limited.status, headers: limited.headers });
+  }
 
-    if (description.length < 20) {
+  try {
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const parsed = aiMatchSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Please provide a description of at least 20 characters" },
+        { error: parsed.error.issues[0]?.message ?? "Validation failed" },
         { status: 400 }
       );
     }
+    const description: string = parsed.data.description.trim();
 
     // Build the prompt
     const categoriesList = awardCategories

@@ -7,14 +7,36 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Check, Trophy, Users, Sparkles } from "lucide-react";
 import * as Icons from "lucide-react";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+type Params = { slug: string };
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { slug } = await params;
+  const category = awardCategories.find((c) => c.slug === slug);
+  if (!category) {
+    return { title: "Category Not Found" };
+  }
+  return {
+    title: category.name,
+    description: category.tagline,
+    alternates: { canonical: `https://ecoawardsafrica.com/categories/${slug}` },
+    openGraph: {
+      title: `${category.name} — Africa Climate Leadership Awards`,
+      description: category.description.slice(0, 200),
+      url: `https://ecoawardsafrica.com/categories/${slug}`,
+      type: "website",
+    },
+  };
+}
 
 export async function generateStaticParams() {
   return awardCategories.map((c) => ({ slug: c.slug }));
 }
 
-export default async function CategoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CategoryDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const category = awardCategories.find((c) => c.slug === slug);
   if (!category) notFound();

@@ -6,6 +6,9 @@
   NODE_VERSION = "20"
   NEXT_USE_NETLIFY_EDGE = "true"
   NEXT_PUBLIC_SITE_URL = "https://ecoawardsafrica.com"
+  # REQUIRED: Set NEXTAUTH_SECRET in Netlify UI → Site settings → Environment variables.
+  # Generate with: openssl rand -base64 32
+  # The runtime will fail with a clear error if this is not set in production.
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -32,6 +35,8 @@
   for = "/api/*"
   [headers.values]
     Cache-Control = "no-store, no-cache, must-revalidate"
-    Access-Control-Allow-Origin = "*"
+    # Tighten CORS — only allow same-origin (override per-route if cross-origin needed)
+    Access-Control-Allow-Origin = "https://ecoawardsafrica.netlify.app"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Credentials = "true"
