@@ -1,0 +1,817 @@
+     1→"use client";
+     2→
+     3→import { useState } from "react";
+     4→import { motion, AnimatePresence } from "framer-motion";
+     5→import { useForm } from "react-hook-form";
+     6→import { zodResolver } from "@hookform/resolvers/zod";
+     7→import { z } from "zod";
+     8→import { toast } from "sonner";
+     9→import {
+    10→  ArrowRight,
+    11→  ArrowLeft,
+    12→  CheckCircle2,
+    13→  Sparkles,
+    14→  ShieldCheck,
+    15→  User,
+    16→  Users2,
+    17→  FileText,
+    18→  Trophy,
+    19→  Loader2,
+    20→  Lightbulb,
+    21→} from "lucide-react";
+    22→import { Button } from "@/components/ui/button";
+    23→import { Input } from "@/components/ui/input";
+    24→import { Textarea } from "@/components/ui/textarea";
+    25→import { Label } from "@/components/ui/label";
+    26→import { Checkbox } from "@/components/ui/checkbox";
+    27→import { Progress } from "@/components/ui/progress";
+    28→import { SectionHeading, Reveal } from "@/components/section-primitives";
+    29→import { awardCategories, africanCountries } from "@/lib/data";
+    30→import { cn } from "@/lib/utils";
+    31→
+    32→const STEPS = [
+    33→  { id: 0, label: "Category", icon: Trophy },
+    34→  { id: 1, label: "Nominee", icon: User },
+    35→  { id: 2, label: "Nominator", icon: Users2 },
+    36→  { id: 3, label: "The Case", icon: FileText },
+    37→  { id: 4, label: "Review & Submit", icon: ShieldCheck },
+    38→];
+    39→
+    40→const schema = z.object({
+    41→  categoryId: z.string().min(1, "Please select a category"),
+    42→  selfNomination: z.boolean().default(false),
+    43→
+    44→  nomineeName: z.string().min(2, "Nominee name is required"),
+    45→  nomineeTitle: z.string().optional(),
+    46→  nomineeOrg: z.string().optional(),
+    47→  nomineeCountry: z.string().min(1, "Country is required"),
+    48→  nomineeEmail: z.string().email("Valid email required").optional().or(z.literal("")),
+    49→  nomineePhone: z.string().optional(),
+    50→  nomineeWebsite: z.string().url("Valid URL required").optional().or(z.literal("")),
+    51→  nomineeLinkedin: z.string().optional(),
+    52→
+    53→  nominatorName: z.string().min(2, "Your name is required"),
+    54→  nominatorEmail: z.string().email("Valid email required"),
+    55→  nominatorOrg: z.string().optional(),
+    56→  nominatorRel: z.string().optional(),
+    57→
+    58→  summary: z.string().min(60, "Summary must be at least 60 characters").max(300, "Max 300 characters"),
+    59→  justification: z.string().min(200, "Justification must be at least 200 characters"),
+    60→  impactMetrics: z.string().optional(),
+    61→  supportingLinks: z.string().optional(),
+    62→  mediaUrl: z.string().url("Valid URL required").optional().or(z.literal("")),
+    63→
+    64→  confirmsConsent: z.boolean().refine((v) => v, "Nominee consent is required"),
+    65→  confirmsTruthful: z.boolean().refine((v) => v, "Truthful submission confirmation required"),
+    66→  confirmsAfrican: z.boolean().refine((v) => v, "African eligibility confirmation required"),
+    67→});
+    68→
+    69→type NominationForm = z.infer<typeof schema>;
+    70→
+    71→type AiFeedback = {
+    72→  loading: boolean;
+    73→  result: null | {
+    74→    strengths: string[];
+    75→    improvements: string[];
+    76→    criteriaAlignment: { criterion: string; score: number }[];
+    77→    overallScore: number;
+    78→    summary: string;
+    79→  };
+    80→  error: string | null;
+    81→};
+    82→
+    83→export function NominateSection() {
+    84→  const [step, setStep] = useState(0);
+    85→  const [submitting, setSubmitting] = useState(false);
+    86→  const [submitted, setSubmitted] = useState<{ referenceCode: string } | null>(null);
+    87→  const [aiFeedback, setAiFeedback] = useState<AiFeedback>({
+    88→    loading: false,
+    89→    result: null,
+    90→    error: null,
+    91→  });
+    92→
+    93→  const {
+    94→    register,
+    95→    handleSubmit,
+    96→    trigger,
+    97→    watch,
+    98→    setValue,
+    99→    getValues,
+   100→    formState: { errors },
+   101→  } = useForm<NominationForm>({
+   102→    resolver: zodResolver(schema),
+   103→    defaultValues: {
+   104→      selfNomination: false,
+   105→      confirmsConsent: false,
+   106→      confirmsTruthful: false,
+   107→      confirmsAfrican: false,
+   108→    },
+   109→    mode: "onBlur",
+   110→  });
+   111→
+   112→  const selectedCategory = watch("categoryId");
+   113→  const selfNom = watch("selfNomination");
+   114→  const summaryValue = watch("summary") || "";
+   115→  const justificationValue = watch("justification") || "";
+   116→
+   117→  const progress = ((step + 1) / STEPS.length) * 100;
+   118→
+   119→  const nextStep = async () => {
+   120→    const fieldsToValidate: (keyof NominationForm)[] =
+   121→      step === 0
+   122→        ? ["categoryId"]
+   123→        : step === 1
+   124→        ? ["nomineeName", "nomineeCountry"]
+   125→        : step === 2
+   126→        ? ["nominatorName", "nominatorEmail"]
+   127→        : step === 3
+   128→        ? ["summary", "justification"]
+   129→        : [];
+   130→
+   131→    if (fieldsToValidate.length > 0) {
+   132→      const valid = await trigger(fieldsToValidate as any);
+   133→      if (!valid) return;
+   134→    }
+   135→    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+   136→    if (typeof window !== "undefined") {
+   137→      document.getElementById("nominate")?.scrollIntoView({ behavior: "smooth", block: "start" });
+   138→    }
+   139→  };
+   140→
+   141→  const prevStep = () => setStep((s) => Math.max(s - 1, 0));
+   142→
+   143→  const runAiAssist = async () => {
+   144→    setAiFeedback({ loading: true, result: null, error: null });
+   145→    try {
+   146→      const cat = awardCategories.find((c) => c.id === selectedCategory);
+   147→      const res = await fetch("/api/ai-assist", {
+   148→        method: "POST",
+   149→        headers: { "Content-Type": "application/json" },
+   150→        body: JSON.stringify({
+   151→          categoryName: cat?.name ?? "",
+   152→          categoryCriteria: cat?.criteria ?? [],
+   153→          nomineeName: getValues("nomineeName"),
+   154→          nomineeCountry: getValues("nomineeCountry"),
+   155→          nomineeOrg: getValues("nomineeOrg"),
+   156→          summary: getValues("summary"),
+   157→          justification: getValues("justification"),
+   158→        }),
+   159→      });
+   160→      if (!res.ok) throw new Error("AI assist failed");
+   161→      const data = await res.json();
+   162→      setAiFeedback({ loading: false, result: data, error: null });
+   163→      toast.success("AI review complete — see feedback below");
+   164→    } catch (e: any) {
+   165→      setAiFeedback({ loading: false, result: null, error: e.message ?? "AI assist unavailable" });
+   166→      toast.error("AI assistant temporarily unavailable. You can still submit.");
+   167→    }
+   168→  };
+   169→
+   170→  const onSubmit = async (values: NominationForm) => {
+   171→    setSubmitting(true);
+   172→    try {
+   173→      const res = await fetch("/api/nominate", {
+   174→        method: "POST",
+   175→        headers: { "Content-Type": "application/json" },
+   176→        body: JSON.stringify(values),
+   177→      });
+   178→      if (!res.ok) {
+   179→        const err = await res.json().catch(() => ({}));
+   180→        throw new Error(err.error ?? "Submission failed");
+   181→      }
+   182→      const data = await res.json();
+   183→      setSubmitted({ referenceCode: data.referenceCode });
+   184→      toast.success("Nomination submitted!");
+   185→    } catch (e: any) {
+   186→      toast.error(e.message ?? "Submission failed. Please try again.");
+   187→    } finally {
+   188→      setSubmitting(false);
+   189→    }
+   190→  };
+   191→
+   192→  if (submitted) {
+   193→    return (
+   194→      <section id="nominate" className="relative py-24 lg:py-32 bg-background">
+   195→        <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+   196→          <Reveal>
+   197→            <div className="relative overflow-hidden rounded-3xl border border-forest/40 bg-gradient-to-br from-forest/12 via-card/60 to-gold/10 p-8 lg:p-12 text-center">
+   198→              <div className="absolute inset-0 bg-dots opacity-30" />
+   199→              <div className="relative">
+   200→                <div className="mx-auto h-20 w-20 rounded-full bg-forest/15 ring-2 ring-forest/40 grid place-items-center">
+   201→                  <CheckCircle2 className="h-10 w-10 text-forest" />
+   202→                </div>
+   203→                <h3 className="mt-6 font-display text-3xl lg:text-4xl font-bold text-foreground">
+   204→                  Nomination Received
+   205→                </h3>
+   206→                <p className="mt-3 text-muted-foreground leading-relaxed">
+   207→                  Thank you for honouring African climate leadership. Your nomination has been
+   208→                  securely submitted and is now entering our multi-stage review process.
+   209→                </p>
+   210→                <div className="mt-6 inline-flex flex-col items-center gap-1 px-6 py-3 rounded-xl border border-forest/30 bg-forest/10">
+   211→                  <span className="text-xs uppercase tracking-[0.22em] text-forest font-semibold">
+   212→                    Your Reference Code
+   213→                  </span>
+   214→                  <span className="font-mono text-2xl font-bold text-forest tracking-wider">
+   215→                    {submitted.referenceCode}
+   216→                  </span>
+   217→                </div>
+   218→                <p className="mt-5 text-xs text-muted-foreground">
+   219→                  Save this code — you&apos;ll need it to follow your nomination&apos;s status.
+   220→                  We&apos;ve also sent a confirmation email.
+   221→                </p>
+   222→                <Button
+   223→                  asChild
+   224→                  className="mt-7 bg-forest hover:bg-forest-light text-cream font-semibold"
+   225→                >
+   226→                  <a href="#top">Back to top</a>
+   227→                </Button>
+   228→              </div>
+   229→            </div>
+   230→          </Reveal>
+   231→        </div>
+   232→      </section>
+   233→    );
+   234→  }
+   235→
+   236→  return (
+   237→    <section
+   238→      id="nominate"
+   239→      className="relative py-24 lg:py-32 bg-gradient-to-b from-background via-secondary/40 to-background"
+   240→    >
+   241→      <div className="absolute top-0 left-1/4 h-72 w-72 rounded-full bg-forest/8 blur-3xl pointer-events-none" />
+   242→      <div className="absolute bottom-0 right-1/4 h-72 w-72 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
+   243→
+   244→      <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+   245→        <SectionHeading
+   246→          eyebrow="Submit a Nomination"
+   247→          title={
+   248→            <>
+   249→              Five steps to honour a{" "}
+   250→              <span className="text-gradient-sunset">climate leader.</span>
+   251→            </>
+   252→          }
+   253→          description="Nominations are free, confidential, and open to anyone. Use our AI Nomination Assistant at any time to strengthen your case before submitting."
+   254→        />
+   255→
+   256→        <Reveal delay={0.1}>
+   257→          <div className="mt-12 relative overflow-hidden rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl">
+   258→            <div className="absolute inset-0 bg-grid opacity-[0.05]" />
+   259→
+   260→            {/* Stepper */}
+   261→            <div className="relative px-6 lg:px-10 pt-7 pb-2 border-b border-border/60">
+   262→              <div className="flex items-center justify-between gap-1">
+   263→                {STEPS.map((s, i) => (
+   264→                  <div key={s.id} className="flex-1 flex items-center gap-2 min-w-0">
+   265→                    <div className="flex items-center gap-2.5 min-w-0">
+   266→                      <div
+   267→                        className={cn(
+   268→                          "h-9 w-9 lg:h-10 lg:w-10 rounded-xl grid place-items-center transition-all flex-shrink-0",
+   269→                          i < step && "bg-forest/15 text-forest ring-1 ring-forest/30",
+   270→                          i === step && "bg-gradient-to-br from-forest to-forest-light text-cream shadow-forest",
+   271→                          i > step && "bg-muted/60 text-muted-foreground"
+   272→                        )}
+   273→                      >
+   274→                        {i < step ? (
+   275→                          <CheckCircle2 className="h-4 w-4 lg:h-5 lg:w-5" />
+   276→                        ) : (
+   277→                          <s.icon className="h-4 w-4 lg:h-5 lg:w-5" />
+   278→                        )}
+   279→                      </div>
+   280→                      <div className="hidden sm:block min-w-0">
+   281→                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+   282→                          Step {i + 1}
+   283→                        </div>
+   284→                        <div
+   285→                          className={cn(
+   286→                            "text-sm font-semibold truncate",
+   287→                            i === step ? "text-forest" : "text-muted-foreground"
+   288→                          )}
+   289→                        >
+   290→                          {s.label}
+   291→                        </div>
+   292→                      </div>
+   293→                    </div>
+   294→                    {i < STEPS.length - 1 && (
+   295→                      <div className="flex-1 h-px bg-border/60 mx-2 hidden sm:block">
+   296→                        <div
+   297→                          className="h-full bg-gradient-to-r from-forest to-gold transition-all duration-500"
+   298→                          style={{ width: i < step ? "100%" : "0%" }}
+   299→                        />
+   300→                      </div>
+   301→                    )}
+   302→                  </div>
+   303→                ))}
+   304→              </div>
+   305→
+   306→              <div className="mt-5">
+   307→                <Progress value={progress} className="h-1.5 bg-muted/60 [&>div]:bg-gradient-to-r [&>div]:from-forest [&>div]:to-gold" />
+   308→              </div>
+   309→            </div>
+   310→
+   311→            <form onSubmit={handleSubmit(onSubmit)} className="relative p-6 lg:p-10">
+   312→              <AnimatePresence mode="wait">
+   313→                <motion.div
+   314→                  key={step}
+   315→                  initial={{ opacity: 0, x: 20 }}
+   316→                  animate={{ opacity: 1, x: 0 }}
+   317→                  exit={{ opacity: 0, x: -20 }}
+   318→                  transition={{ duration: 0.25 }}
+   319→                >
+   320→                  {/* Step 0: Category */}
+   321→                  {step === 0 && (
+   322→                    <div>
+   323→                      <h3 className="font-display text-2xl font-bold text-foreground">
+   324→                        Which category are you nominating for?
+   325→                      </h3>
+   326→                      <p className="mt-2 text-sm text-muted-foreground">
+   327→                        Choose the category that best fits your nominee&apos;s contribution.
+   328→                        You can change this later if needed.
+   329→                      </p>
+   330→                      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[460px] overflow-y-auto scrollbar-thin pr-1">
+   331→                        {awardCategories.map((cat) => {
+   332→                          const selected = selectedCategory === cat.id;
+   333→                          return (
+   334→                            <button
+   335→                              type="button"
+   336→                              key={cat.id}
+   337→                              onClick={() => setValue("categoryId", cat.id, { shouldValidate: true })}
+   338→                              className={cn(
+   339→                                "text-left p-4 rounded-xl border transition-all relative overflow-hidden",
+   340→                                selected
+   341→                                  ? "border-forest/60 bg-forest/10 ring-2 ring-forest/30"
+   342→                                  : "border-border/60 bg-card/40 hover:border-border hover:bg-card/70"
+   343→                              )}
+   344→                            >
+   345→                              <div className="flex items-start justify-between gap-2">
+   346→                                <div>
+   347→                                  <div className="text-[10px] uppercase tracking-wider text-forest font-semibold">
+   348→                                    {cat.level}
+   349→                                  </div>
+   350→                                  <div className="mt-1 font-semibold text-sm text-foreground leading-tight">
+   351→                                    {cat.name}
+   352→                                  </div>
+   353→                                </div>
+   354→                                {selected && (
+   355→                                  <CheckCircle2 className="h-5 w-5 text-forest flex-shrink-0" />
+   356→                                )}
+   357→                              </div>
+   358→                              <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2">
+   359→                                {cat.tagline}
+   360→                              </p>
+   361→                            </button>
+   362→                          );
+   363→                        })}
+   364→                      </div>
+   365→                      {errors.categoryId && (
+   366→                        <p className="mt-3 text-xs text-destructive">{errors.categoryId.message}</p>
+   367→                      )}
+   368→                    </div>
+   369→                  )}
+   370→
+   371→                  {/* Step 1: Nominee */}
+   372→                  {step === 1 && (
+   373→                    <div className="space-y-5">
+   374→                      <div>
+   375→                        <h3 className="font-display text-2xl font-bold text-foreground">
+   376→                          Tell us about the nominee
+   377→                        </h3>
+   378→                        <p className="mt-2 text-sm text-muted-foreground">
+   379→                          The person or organisation being nominated for this award.
+   380→                        </p>
+   381→                      </div>
+   382→
+   383→                      <div className="flex items-center gap-3 p-4 rounded-xl border border-border/60 bg-muted/30">
+   384→                        <Checkbox
+   385→                          id="selfNom"
+   386→                          checked={selfNom}
+   387→                          onCheckedChange={(v) => setValue("selfNomination", v === true, { shouldValidate: true })}
+   388→                        />
+   389→                        <Label htmlFor="selfNom" className="text-sm text-foreground cursor-pointer flex-1">
+   390→                          I am nominating myself
+   391→                          <span className="block text-xs text-muted-foreground mt-0.5">
+   392→                            Self-nominations are welcome and treated identically to third-party nominations.
+   393→                          </span>
+   394→                        </Label>
+   395→                      </div>
+   396→
+   397→                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   398→                        <Field label="Nominee name" required error={errors.nomineeName?.message}>
+   399→                          <Input {...register("nomineeName")} placeholder="e.g., Dr. Amina Mohammed" />
+   400→                        </Field>
+   401→                        <Field label="Title / Role" error={errors.nomineeTitle?.message}>
+   402→                          <Input {...register("nomineeTitle")} placeholder="e.g., Director, Founder" />
+   403→                        </Field>
+   404→                        <Field label="Organisation">
+   405→                          <Input {...register("nomineeOrg")} placeholder="e.g., Green Belt Movement" />
+   406→                        </Field>
+   407→                        <Field label="Country" required error={errors.nomineeCountry?.message}>
+   408→                          <select
+   409→                            {...register("nomineeCountry")}
+   410→                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+   411→                          >
+   412→                            <option value="">Select country…</option>
+   413→                            {africanCountries.map((c) => (
+   414→                              <option key={c} value={c}>{c}</option>
+   415→                            ))}
+   416→                          </select>
+   417→                        </Field>
+   418→                        <Field label="Email" error={errors.nomineeEmail?.message}>
+   419→                          <Input type="email" {...register("nomineeEmail")} placeholder="nominee@example.org" />
+   420→                        </Field>
+   421→                        <Field label="Phone">
+   422→                          <Input {...register("nomineePhone")} placeholder="+254 711 000 000" />
+   423→                        </Field>
+   424→                        <Field label="Website" error={errors.nomineeWebsite?.message}>
+   425→                          <Input {...register("nomineeWebsite")} placeholder="https://" />
+   426→                        </Field>
+   427→                        <Field label="LinkedIn / Social">
+   428→                          <Input {...register("nomineeLinkedin")} placeholder="linkedin.com/in/…" />
+   429→                        </Field>
+   430→                      </div>
+   431→                    </div>
+   432→                  )}
+   433→
+   434→                  {/* Step 2: Nominator */}
+   435→                  {step === 2 && (
+   436→                    <div className="space-y-5">
+   437→                      <div>
+   438→                        <h3 className="font-display text-2xl font-bold text-foreground">
+   439→                          {selfNom ? "Your contact details" : "Your details as nominator"}
+   440→                        </h3>
+   441→                        <p className="mt-2 text-sm text-muted-foreground">
+   442→                          {selfNom
+   443→                            ? "We need a way to reach you about your nomination."
+   444→                            : "So we can verify the nomination and contact you about the review."}
+   445→                        </p>
+   446→                      </div>
+   447→
+   448→                      {selfNom && (
+   449→                        <div className="rounded-xl border border-forest/30 bg-forest/8 p-3 text-xs text-forest">
+   450→                          We&apos;ll pre-fill your nominator details from the nominee step.
+   451→                        </div>
+   452→                      )}
+   453→
+   454→                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   455→                        <Field label="Your name" required error={errors.nominatorName?.message}>
+   456→                          <Input
+   457→                            {...register("nominatorName")}
+   458→                            placeholder={selfNom ? (watch("nomineeName") || "Your name") : "Your full name"}
+   459→                          />
+   460→                        </Field>
+   461→                        <Field label="Your email" required error={errors.nominatorEmail?.message}>
+   462→                          <Input type="email" {...register("nominatorEmail")} placeholder="you@example.org" />
+   463→                        </Field>
+   464→                        <Field label="Your organisation">
+   465→                          <Input {...register("nominatorOrg")} placeholder="Optional" />
+   466→                        </Field>
+   467→                        <Field label="Relationship to nominee">
+   468→                          <Input
+   469→                            {...register("nominatorRel")}
+   470→                            placeholder={selfNom ? "Self-nomination" : "e.g., Colleague, Mentee, Partner"}
+   471→                          />
+   472→                        </Field>
+   473→                      </div>
+   474→                    </div>
+   475→                  )}
+   476→
+   477→                  {/* Step 3: The Case */}
+   478→                  {step === 3 && (
+   479→                    <div className="space-y-5">
+   480→                      <div>
+   481→                        <h3 className="font-display text-2xl font-bold text-foreground">
+   482→                          Make the case for this nomination
+   483→                        </h3>
+   484→                        <p className="mt-2 text-sm text-muted-foreground">
+   485→                          Be specific, be evidence-based, and be honest. Use our AI assistant to
+   486→                          strengthen your case before submitting.
+   487→                        </p>
+   488→                      </div>
+   489→
+   490→                      <Field
+   491→                        label="Short summary"
+   492→                        hint={`${summaryValue.length}/300 characters`}
+   493→                        required
+   494→                        error={errors.summary?.message}
+   495→                      >
+   496→                        <Textarea
+   497→                          {...register("summary")}
+   498→                          rows={3}
+   499→                          maxLength={300}
+   500→                          placeholder="In 300 characters or fewer, who is this nominee and what have they achieved?"
+   501→                        />
+   502→                      </Field>
+   503→
+   504→                      <Field
+   505→                        label="Detailed justification"
+   506→                        hint={`${justificationValue.length} characters (min 200)`}
+   507→                        required
+   508→                        error={errors.justification?.message}
+   509→                      >
+   510→                        <Textarea
+   511→                          {...register("justification")}
+   512→                          rows={8}
+   513→                          placeholder="Lay out the strongest case for this nominee. Cover: (1) the climate challenge addressed; (2) the specific actions taken; (3) the measurable impact achieved; (4) why this approach is innovative or replicable; (5) how it centres equity and African leadership. Use data and specific examples wherever possible."
+   514→                        />
+   515→                      </Field>
+   516→
+   517→                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   518→                        <Field
+   519→                          label="Impact metrics"
+   520→                          hint="Optional — hectares restored, tonnes CO2e avoided, people reached, etc."
+   521→                        >
+   522→                          <Textarea
+   523→                            {...register("impactMetrics")}
+   524→                            rows={3}
+   525→                            placeholder="e.g., 12,400 trees planted; 3,200 households solar-powered; 47 policies informed"
+   526→                          />
+   527→                        </Field>
+   528→                        <Field
+   529→                          label="Supporting links"
+   530→                          hint="Optional — one URL per line"
+   531→                        >
+   532→                          <Textarea
+   533→                            {...register("supportingLinks")}
+   534→                            rows={3}
+   535→                            placeholder={"https://example.org/impact-report\nhttps://example.org/press"}
+   536→                          />
+   537→                        </Field>
+   538→                      </div>
+   539→
+   540→                      <Field label="Media / portfolio URL" hint="Optional — video, deck, or portfolio" error={errors.mediaUrl?.message}>
+   541→                        <Input {...register("mediaUrl")} placeholder="https://" />
+   542→                      </Field>
+   543→
+   544→                      {/* AI Assistant */}
+   545→                      <div className="mt-6 rounded-2xl border border-gold/40 bg-gradient-to-br from-gold/12 via-card/40 to-forest/8 p-5">
+   546→                        <div className="flex items-center justify-between gap-3 flex-wrap">
+   547→                          <div className="flex items-center gap-2">
+   548→                            <div className="h-9 w-9 rounded-lg bg-gold/20 ring-1 ring-gold/40 grid place-items-center">
+   549→                              <Sparkles className="h-4 w-4 text-gold" />
+   550→                            </div>
+   551→                            <div>
+   552→                              <div className="text-sm font-semibold text-foreground">
+   553→                                AI Nomination Assistant
+   554→                              </div>
+   555→                              <div className="text-xs text-muted-foreground">
+   556→                                Get specific feedback on your draft before submitting.
+   557→                              </div>
+   558→                            </div>
+   559→                          </div>
+   560→                          <Button
+   561→                            type="button"
+   562→                            size="sm"
+   563→                            onClick={runAiAssist}
+   564→                            disabled={aiFeedback.loading || !selectedCategory}
+   565→                            className="bg-gradient-to-r from-gold to-terracotta hover:from-gold-light hover:to-terracotta text-cream font-semibold"
+   566→                          >
+   567→                            {aiFeedback.loading ? (
+   568→                              <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />Reviewing…</>
+   569→                            ) : (
+   570→                              <><Sparkles className="mr-1.5 h-3.5 w-3.5" />Review my draft</>
+   571→                            )}
+   572→                          </Button>
+   573→                        </div>
+   574→
+   575→                        {aiFeedback.result && (
+   576→                          <motion.div
+   577→                            initial={{ opacity: 0, height: 0 }}
+   578→                            animate={{ opacity: 1, height: "auto" }}
+   579→                            className="mt-4 space-y-4 overflow-hidden"
+   580→                          >
+   581→                            <div className="text-xs text-terracotta italic leading-relaxed">
+   582→                              &ldquo;{aiFeedback.result.summary}&rdquo;
+   583→                            </div>
+   584→
+   585→                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   586→                              <div>
+   587→                                <div className="text-[10px] uppercase tracking-wider font-semibold text-forest mb-1.5">
+   588→                                  Strengths
+   589→                                </div>
+   590→                                <ul className="space-y-1 text-xs text-foreground/85">
+   591→                                  {aiFeedback.result.strengths.map((s, i) => (
+   592→                                    <li key={i} className="flex items-start gap-1.5">
+   593→                                      <CheckCircle2 className="h-3 w-3 text-forest mt-0.5 flex-shrink-0" />
+   594→                                      <span>{s}</span>
+   595→                                    </li>
+   596→                                  ))}
+   597→                                </ul>
+   598→                              </div>
+   599→                              <div>
+   600→                                <div className="text-[10px] uppercase tracking-wider font-semibold text-gold mb-1.5">
+   601→                                  Improvements
+   602→                                </div>
+   603→                                <ul className="space-y-1 text-xs text-foreground/85">
+   604→                                  {aiFeedback.result.improvements.map((s, i) => (
+   605→                                    <li key={i} className="flex items-start gap-1.5">
+   606→                                      <Lightbulb className="h-3 w-3 text-gold mt-0.5 flex-shrink-0" />
+   607→                                      <span>{s}</span>
+   608→                                    </li>
+   609→                                  ))}
+   610→                                </ul>
+   611→                              </div>
+   612→                            </div>
+   613→
+   614→                            <div>
+   615→                              <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">
+   616→                                Estimated Criteria Alignment
+   617→                              </div>
+   618→                              <div className="space-y-1.5">
+   619→                                {aiFeedback.result.criteriaAlignment.map((c, i) => (
+   620→                                  <div key={i} className="flex items-center gap-2 text-xs">
+   621→                                    <span className="w-28 text-foreground/70 flex-shrink-0">{c.criterion}</span>
+   622→                                    <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+   623→                                      <div
+   624→                                        className="h-full bg-gradient-to-r from-forest to-gold"
+   625→                                        style={{ width: `${c.score}%` }}
+   626→                                      />
+   627→                                    </div>
+   628→                                    <span className="w-8 text-right text-foreground/80 tabular-nums">{c.score}%</span>
+   629→                                  </div>
+   630→                                ))}
+   631→                              </div>
+   632→                            </div>
+   633→
+   634→                            <div className="flex items-center gap-2 text-xs text-gold">
+   635→                              <ShieldCheck className="h-3.5 w-3.5" />
+   636→                              <span>AI feedback is advisory only — your nomination will still be reviewed by human judges.</span>
+   637→                            </div>
+   638→                          </motion.div>
+   639→                        )}
+   640→
+   641→                        {aiFeedback.error && (
+   642→                          <div className="mt-3 text-xs text-muted-foreground">
+   643→                            AI assistant unavailable right now — you can still submit your nomination.
+   644→                          </div>
+   645→                        )}
+   646→                      </div>
+   647→                    </div>
+   648→                  )}
+   649→
+   650→                  {/* Step 4: Review */}
+   651→                  {step === 4 && (
+   652→                    <div className="space-y-5">
+   653→                      <div>
+   654→                        <h3 className="font-display text-2xl font-bold text-foreground">
+   655→                          Review &amp; confirm
+   656→                        </h3>
+   657→                        <p className="mt-2 text-sm text-muted-foreground">
+   658→                          Please confirm your nomination is accurate and the nominee has consented.
+   659→                        </p>
+   660→                      </div>
+   661→
+   662→                      <ReviewBlock title="Category">
+   663→                        {awardCategories.find((c) => c.id === selectedCategory)?.name ?? "—"}
+   664→                      </ReviewBlock>
+   665→
+   666→                      <ReviewBlock title="Nominee">
+   667→                        <div className="space-y-0.5">
+   668→                          <div>{watch("nomineeName")}</div>
+   669→                          <div className="text-muted-foreground">
+   670→                            {[watch("nomineeTitle"), watch("nomineeOrg")].filter(Boolean).join(" · ") || "—"}
+   671→                          </div>
+   672→                          <div className="text-muted-foreground">{watch("nomineeCountry")}</div>
+   673→                        </div>
+   674→                      </ReviewBlock>
+   675→
+   676→                      <ReviewBlock title="Summary">
+   677→                        <p className="text-sm italic">{watch("summary")}</p>
+   678→                      </ReviewBlock>
+   679→
+   680→                      <ReviewBlock title="Justification (excerpt)">
+   681→                        <p className="text-sm text-muted-foreground line-clamp-3">
+   682→                          {watch("justification")}
+   683→                        </p>
+   684→                      </ReviewBlock>
+   685→
+   686→                      <div className="space-y-3 pt-2">
+   687→                        <ConfirmRow
+   688→                          checked={watch("confirmsConsent")}
+   689→                          onCheck={(v) => setValue("confirmsConsent", v, { shouldValidate: true })}
+   690→                          error={errors.confirmsConsent?.message}
+   691→                          text={selfNom
+   692→                            ? "I confirm that I am the person named above and that the information provided is mine."
+   693→                            : "I confirm that the nominee has consented to this nomination, or that this is a publicly eligible nomination."}
+   694→                        />
+   695→                        <ConfirmRow
+   696→                          checked={watch("confirmsTruthful")}
+   697→                          onCheck={(v) => setValue("confirmsTruthful", v, { shouldValidate: true })}
+   698→                          error={errors.confirmsTruthful?.message}
+   699→                          text="I confirm that all information provided is truthful and accurate to the best of my knowledge."
+   700→                        />
+   701→                        <ConfirmRow
+   702→                          checked={watch("confirmsAfrican")}
+   703→                          onCheck={(v) => setValue("confirmsAfrican", v, { shouldValidate: true })}
+   704→                          error={errors.confirmsAfrican?.message}
+   705→                          text="I confirm that the nominee is African or based on the African continent and meets the category's eligibility criteria."
+   706→                        />
+   707→                      </div>
+   708→                    </div>
+   709→                  )}
+   710→                </motion.div>
+   711→              </AnimatePresence>
+   712→
+   713→              {/* Navigation */}
+   714→              <div className="mt-8 pt-6 border-t border-border/60 flex items-center justify-between">
+   715→                <Button
+   716→                  type="button"
+   717→                  variant="ghost"
+   718→                  onClick={prevStep}
+   719→                  disabled={step === 0 || submitting}
+   720→                  className="text-muted-foreground hover:text-foreground"
+   721→                >
+   722→                  <ArrowLeft className="mr-1.5 h-4 w-4" />
+   723→                  Back
+   724→                </Button>
+   725→                {step < STEPS.length - 1 ? (
+   726→                  <Button
+   727→                    type="button"
+   728→                    onClick={nextStep}
+   729→                    className="bg-forest hover:bg-forest-light text-cream font-semibold"
+   730→                  >
+   731→                    Continue
+   732→                    <ArrowRight className="ml-1.5 h-4 w-4" />
+   733→                  </Button>
+   734→                ) : (
+   735→                  <Button
+   736→                    type="submit"
+   737→                    disabled={submitting}
+   738→                    className="bg-forest hover:bg-forest-light text-cream font-semibold min-w-44"
+   739→                  >
+   740→                    {submitting ? (
+   741→                      <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" />Submitting…</>
+   742→                    ) : (
+   743→                      <><ShieldCheck className="mr-1.5 h-4 w-4" />Submit nomination</>
+   744→                    )}
+   745→                  </Button>
+   746→                )}
+   747→              </div>
+   748→            </form>
+   749→          </div>
+   750→        </Reveal>
+   751→      </div>
+   752→    </section>
+   753→  );
+   754→}
+   755→
+   756→function Field({
+   757→  label,
+   758→  hint,
+   759→  error,
+   760→  required,
+   761→  children,
+   762→}: {
+   763→  label: string;
+   764→  hint?: string;
+   765→  error?: string;
+   766→  required?: boolean;
+   767→  children: React.ReactNode;
+   768→}) {
+   769→  return (
+   770→    <div>
+   771→      <div className="flex items-baseline justify-between mb-1.5">
+   772→        <Label className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">
+   773→          {label} {required && <span className="text-destructive">*</span>}
+   774→        </Label>
+   775→        {hint && <span className="text-[10px] text-muted-foreground">{hint}</span>}
+   776→      </div>
+   777→      {children}
+   778→      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+   779→    </div>
+   780→  );
+   781→}
+   782→
+   783→function ReviewBlock({ title, children }: { title: string; children: React.ReactNode }) {
+   784→  return (
+   785→    <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+   786→      <div className="text-[10px] uppercase tracking-wider text-forest font-semibold mb-1.5">
+   787→        {title}
+   788→      </div>
+   789→      {children}
+   790→    </div>
+   791→  );
+   792→}
+   793→
+   794→function ConfirmRow({
+   795→  checked,
+   796→  onCheck,
+   797→  text,
+   798→  error,
+   799→}: {
+   800→  checked: boolean;
+   801→  onCheck: (v: boolean) => void;
+   802→  text: string;
+   803→  error?: string;
+   804→}) {
+   805→  return (
+   806→    <div>
+   807→      <div className="flex items-start gap-3 p-3.5 rounded-xl border border-border/60 bg-muted/30">
+   808→        <Checkbox checked={checked} onCheckedChange={(v) => onCheck(v === true)} />
+   809→        <Label className="text-sm text-foreground leading-snug cursor-pointer flex-1">
+   810→          {text}
+   811→        </Label>
+   812→      </div>
+   813→      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+   814→    </div>
+   815→  );
+   816→}
+   817→
