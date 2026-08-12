@@ -24,8 +24,8 @@ export function WinnersSection() {
 
   return (
     <section id="winners" className="relative py-24 lg:py-32 bg-background">
-      <div className="absolute inset-0 bg-grid opacity-[0.05]" />
-      <div className="absolute top-1/4 left-0 h-72 w-72 rounded-full bg-amber-500/8 blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-dots opacity-30" />
+      <div className="absolute top-1/4 left-0 h-72 w-72 rounded-full bg-gold/8 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
@@ -33,7 +33,7 @@ export function WinnersSection() {
           title={
             <>
               The leaders who&apos;ve{" "}
-              <span className="text-gradient-emerald">already shaped the continent.</span>
+              <span className="text-gradient-sunset">already shaped the continent.</span>
             </>
           }
           description="Four editions of the Eco Africa Awards have honoured climate leaders whose work has redefined what's possible on the African continent. Meet a selection of past winners."
@@ -46,7 +46,7 @@ export function WinnersSection() {
               onClick={() => setYearFilter("all")}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
                 yearFilter === "all"
-                  ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-background"
+                  ? "bg-gradient-to-r from-forest to-forest-light text-cream"
                   : "border border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
               }`}
             >
@@ -58,7 +58,7 @@ export function WinnersSection() {
                 onClick={() => setYearFilter(y)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
                   yearFilter === y
-                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-background"
+                    ? "bg-gradient-to-r from-forest to-forest-light text-cream"
                     : "border border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
                 }`}
               >
@@ -79,16 +79,16 @@ export function WinnersSection() {
                   className="group relative h-full overflow-hidden rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm"
                 >
                   {/* Top strip */}
-                  <div className="relative h-32 overflow-hidden bg-gradient-to-br from-emerald-500/15 via-amber-500/10 to-emerald-500/5">
+                  <div className="relative h-32 overflow-hidden bg-gradient-to-br from-forest/12 via-gold/10 to-forest/5">
                     <div className="absolute inset-0 bg-grid opacity-[0.1]" />
                     <div className="absolute top-0 left-0 right-0 p-4 flex items-start justify-between">
-                      <div className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                      <div className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold bg-gold/20 text-gold-light border border-gold/40">
                         {w.year} Winner
                       </div>
-                      <Trophy className="h-6 w-6 text-amber-400/60 group-hover:text-amber-400 transition-colors" />
+                      <Trophy className="h-6 w-6 text-gold/60 group-hover:text-gold transition-colors" />
                     </div>
                     <div className="absolute bottom-3 left-4 right-4">
-                      <div className="text-[10px] uppercase tracking-wider text-emerald-300 font-semibold">
+                      <div className="text-[10px] uppercase tracking-wider text-forest-light font-semibold">
                         {cat?.name}
                       </div>
                     </div>
@@ -100,14 +100,14 @@ export function WinnersSection() {
                       {w.winnerName}
                     </h3>
                     <p className="mt-1 text-xs text-muted-foreground">{w.winnerTitle}</p>
-                    <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-400">
+                    <div className="mt-2 flex items-center gap-1.5 text-xs text-forest">
                       <MapPin className="h-3 w-3" />
                       <span>{w.country}</span>
                       <span className="text-muted-foreground">· {w.winnerOrg}</span>
                     </div>
 
                     <div className="mt-4 relative pl-4">
-                      <Quote className="absolute top-0 left-0 h-3 w-3 text-amber-400/60" />
+                      <Quote className="absolute top-0 left-0 h-3 w-3 text-gold/60" />
                       <p className="text-sm text-foreground/85 leading-relaxed italic">
                         {w.highlight}
                       </p>
@@ -132,7 +132,7 @@ export function WinnersSection() {
             </p>
             <Button
               asChild
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-background font-semibold"
+              className="bg-gradient-to-r from-forest to-forest-light hover:from-forest hover:to-forest-light text-cream font-semibold"
             >
               <a href="#nominate">
                 Submit a nomination

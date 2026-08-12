@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
+const inter = Inter({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -25,17 +19,16 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ecoafricaawards.com"),
+  metadataBase: new URL("https://ecoawardsafrica.com"),
   title: {
-    default: "Eco Africa Awards — Celebrating Climate Leadership Across Africa",
-    template: "%s · Eco Africa Awards",
+    default: "Africa Climate Leadership Awards — Celebrating Climate Leadership Across Africa",
+    template: "%s · Africa Climate Leadership Awards",
   },
   description:
-    "The Eco Africa Awards honour the visionaries, innovators, and communities driving Africa's climate future. Nominate a leader, register for the ceremony, and celebrate continental climate excellence.",
+    "The Africa Climate Leadership Awards honour the visionaries, innovators, and communities driving Africa's climate future. Nominate a leader, register for the ceremony, and celebrate continental climate excellence.",
   keywords: [
-    "Eco Africa Awards",
     "Africa Climate Leadership Awards",
-    "ACLA",
+    "ACLA Awards",
     "climate awards Africa",
     "climate leadership",
     "climate innovation Africa",
@@ -50,22 +43,22 @@ export const metadata: Metadata = {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "Eco Africa Awards — Celebrating Climate Leadership Across Africa",
+    title: "Africa Climate Leadership Awards — Celebrating Climate Leadership Across Africa",
     description:
       "Honouring the visionaries, innovators, and communities driving Africa's climate future. Nominate a leader, register for the ceremony, and celebrate continental climate excellence.",
-    url: "https://ecoafricaawards.com",
-    siteName: "Eco Africa Awards",
+    url: "https://ecoawardsafrica.com",
+    siteName: "Africa Climate Leadership Awards",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Eco Africa Awards",
+    title: "Africa Climate Leadership Awards",
     description:
       "Honouring the visionaries, innovators, and communities driving Africa's climate future.",
   },
   alternates: {
-    canonical: "https://ecoafricaawards.com",
+    canonical: "https://ecoawardsafrica.com",
   },
   robots: {
     index: true,
@@ -79,9 +72,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster />

@@ -1,17 +1,18 @@
-# Eco Africa Awards 🌍
+# Africa Climate Leadership Awards
 
 > Celebrating climate leadership across Africa — an initiative of the Africa Climate Leadership Academy (ACLA).
 
-The **Eco Africa Awards** are the continental stage for African climate leadership. This is the official awards platform — built with Next.js 16, Three.js, and AI throughout, featuring 12 award categories, a multi-step nomination flow with an AI assistant, a transparent 6-stage judging process, ceremony registration, and a Hall of Fame of past winners.
+The **Africa Climate Leadership Awards** are the continental stage for African climate leadership. This is the official awards platform — built with Next.js 16, lightweight SVG/CSS animation, and AI throughout, featuring 12 award categories, a multi-step nomination flow with an AI assistant, a transparent 6-stage judging process, ceremony registration, and a Hall of Fame of past winners.
 
-🌐 **Live domain:** [ecoafricaawards.com](https://ecoafricaawards.com)
+🌐 **Live domain:** [ecoawardsafrica.com](https://ecoawardsafrica.com)
 🏫 **Parent organisation:** [acla.io](https://acla.io)
 
 ---
 
 ## ✨ Highlights
 
-- **3D hero** — A rotating Earth with Africa highlighted, climate-action pulse points across the continent, orbiting satellites, and a starfield. Built with Three.js / React Three Fiber.
+- **Lightweight animated hero** — A savanna sunrise with parallax hills, an animated baobab tree silhouette, floating climate icons, and a scroll-revealed landscape. No heavy 3D, smooth on any device.
+- **Larger, more welcoming design** — Cream paper background, deep forest green primary, sunset gold accents, terracotta highlights, Playfair Display headings scaled up to 8vw.
 - **12 award categories** — From Climate Leader of the Year to Lifetime Achievement, each with detailed criteria, prize descriptions, and a 3D tilt-card UI.
 - **5-step nomination flow** — Category → Nominee → Nominator → The Case → Review. Validates at every step, saves a reference code, and submits to the database.
 - **AI Nomination Assistant** — Reviews draft nominations and returns strengths, improvements, and criteria-alignment scores. Powered by Z.ai.
@@ -23,8 +24,10 @@ The **Eco Africa Awards** are the continental stage for African climate leadersh
 - **Hall of Fame** of past winners across 4 editions.
 - **FAQ** filterable by category (Nominations, Judging, Ceremony, General).
 - **Contact form** with topic routing.
-- **Dark, premium "eco-African" design system** — deep forest greens, sunset ambers, terracotta accents, Playfair Display headings.
+- **Warm, welcoming African palette** — cream paper, deep forest, sunset gold, terracotta, savanna sand.
 - **Fully responsive** with mobile-first nav and sticky footer.
+- **Marquee strip** at the bottom of the hero.
+- **Scroll progress bar** at the very top of the page.
 
 ---
 
@@ -33,14 +36,13 @@ The **Eco Africa Awards** are the continental stage for African climate leadersh
 | Layer | Tech |
 |---|---|
 | Framework | Next.js 16 (App Router) + TypeScript 5 |
-| 3D Graphics | three.js + @react-three/fiber + @react-three/drei |
-| Animations | Framer Motion |
+| Animation | Framer Motion (lightweight SVG/CSS, no 3D) |
 | Styling | Tailwind CSS 4 + shadcn/ui (New York) |
 | Forms | React Hook Form + Zod |
 | Database | Prisma ORM (SQLite dev / Postgres prod) |
 | AI | z-ai-web-dev-sdk (Z.ai chat completions) |
 | Icons | Lucide React |
-| Fonts | Playfair Display + Geist Sans/Mono |
+| Fonts | Playfair Display + Inter |
 | Deployment | Netlify (Next.js runtime plugin) |
 
 ---
@@ -48,13 +50,8 @@ The **Eco Africa Awards** are the continental stage for African climate leadersh
 ## 🚀 Local Development
 
 ```bash
-# Install dependencies
 bun install
-
-# Set up the database (SQLite local file)
 bun run db:push
-
-# Start the dev server
 bun run dev
 ```
 
@@ -82,28 +79,15 @@ The default `DATABASE_URL=file:/home/z/my-project/db/custom.db` works for local 
 For persistent production data on Netlify:
 
 1. Provision a free Postgres database on [Neon](https://neon.tech) or [Supabase](https://supabase.com).
-2. In `prisma/schema.prisma`, change the provider:
-   ```prisma
-   datasource db {
-     provider = "postgresql"  // was "sqlite"
-     url      = env("DATABASE_URL")
-   }
-   ```
-3. In your Netlify site settings, set the environment variable:
-   ```
-   DATABASE_URL=postgresql://user:pass@host/dbname?sslmode=require
-   ```
-4. Run `bun run db:push` locally (with the same `DATABASE_URL`) to create the tables, then deploy.
-
-> The site will render and most static sections will work without a configured DB, but form submissions (nominate / register / contact) require a reachable `DATABASE_URL`.
+2. In `prisma/schema.prisma`, change the provider to `postgresql`.
+3. In your Netlify site settings, set `DATABASE_URL` to your Postgres connection string.
+4. Run `bun run db:push` locally to create the tables, then deploy.
 
 ---
 
 ## 🤖 AI Features & API Keys
 
-The AI features use the `z-ai-web-dev-sdk`. The SDK is initialised automatically when an AI endpoint is hit.
-
-If the AI service is unavailable (e.g. no API key configured), every endpoint **gracefully degrades** to a rule-based fallback so the site remains fully functional:
+The AI features use the `z-ai-web-dev-sdk`. If the AI service is unavailable (e.g. no API key configured), every endpoint **gracefully degrades** to a rule-based fallback so the site remains fully functional.
 
 | Endpoint | Purpose | Fallback |
 |---|---|---|
@@ -118,7 +102,7 @@ If the AI service is unavailable (e.g. no API key configured), every endpoint **
 | Method | Path | Description |
 |---|---|---|
 | `POST` | `/api/nominate` | Submit a nomination (returns `referenceCode`) |
-| `GET` | `/api/nominate?ref=EAA-XXXX` | Check a nomination's status |
+| `GET` | `/api/nominate?ref=ACLA-XXXX` | Check a nomination's status |
 | `POST` | `/api/register` | Register for the ceremony |
 | `POST` | `/api/contact` | Send a contact message |
 | `POST` | `/api/ai-assist` | Get AI feedback on a draft nomination |
@@ -132,9 +116,7 @@ If the AI service is unavailable (e.g. no API key configured), every endpoint **
 
 This repository is configured for one-click Netlify deployment via `netlify.toml`.
 
-### Option A — Connect via GitHub (recommended)
-
-1. Push this repo to GitHub (see [Deployment](#-deployment) below).
+1. Push this repo to GitHub.
 2. Log into [Netlify](https://app.netlify.com).
 3. **Add new site → Import from GitHub** → select this repo.
 4. Build settings are auto-detected from `netlify.toml`:
@@ -142,21 +124,12 @@ This repository is configured for one-click Netlify deployment via `netlify.toml
    - Publish directory: `.next`
 5. Set environment variables in **Site settings → Environment variables**:
    - `DATABASE_URL` — your Postgres connection string (recommended) or `file:/tmp/awards.db` for ephemeral demo
-   - `NEXT_PUBLIC_SITE_URL` — `https://ecoafricaawards.com` (or your Netlify subdomain)
+   - `NEXT_PUBLIC_SITE_URL` — `https://ecoawardsafrica.com`
 6. **Deploy site**. Netlify will install the Next.js runtime plugin automatically.
-
-### Option B — Netlify CLI
-
-```bash
-npm i -g netlify-cli
-netlify login
-netlify init          # link this folder to a Netlify site
-netlify deploy --build --prod
-```
 
 ### Custom domain
 
-In Netlify → **Domain settings → Add custom domain** → enter `ecoafricaawards.com`. Update your registrar's DNS to point to Netlify's nameservers (or add a CNAME record). Netlify auto-provisions HTTPS via Let's Encrypt.
+In Netlify → **Domain settings → Add custom domain** → enter `ecoawardsafrica.com`. Update your registrar's DNS to point to Netlify. HTTPS is auto-provisioned via Let's Encrypt.
 
 ---
 
@@ -166,11 +139,10 @@ In Netlify → **Domain settings → Add custom domain** → enter `ecoafricaawa
 src/
 ├── app/
 │   ├── api/                  # API routes (nominate, register, contact, ai-*)
-│   ├── globals.css           # Eco-African design system
+│   ├── globals.css           # Warm African design system
 │   ├── layout.tsx            # Fonts + metadata
 │   └── page.tsx              # Composes all sections
 ├── components/
-│   ├── earth-canvas.tsx      # 3D Earth / Africa hero
 │   ├── site-header.tsx
 │   ├── site-footer.tsx
 │   ├── section-primitives.tsx # Reveal, AnimatedCounter, SectionHeading

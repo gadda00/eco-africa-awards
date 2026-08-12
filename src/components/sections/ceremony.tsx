@@ -93,8 +93,8 @@ export function CeremonySection() {
 
   return (
     <section id="ceremony" className="relative py-24 lg:py-32 bg-background">
-      <div className="absolute inset-0 bg-grid opacity-[0.05]" />
-      <div className="absolute top-1/4 right-0 h-72 w-72 rounded-full bg-amber-500/8 blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-dots opacity-30" />
+      <div className="absolute top-1/4 right-0 h-72 w-72 rounded-full bg-gold/8 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
@@ -102,7 +102,7 @@ export function CeremonySection() {
           title={
             <>
               Four days. One continental stage.{" "}
-              <span className="text-gradient-emerald">850 climate leaders.</span>
+              <span className="text-gradient-sunset">850 climate leaders.</span>
             </>
           }
           description="Join the 2026 Eco Africa Awards Ceremony at the Kigali Convention Centre — held in partnership with the Africa Climate Leadership Summit. The night the continent celebrates its own."
@@ -119,11 +119,11 @@ export function CeremonySection() {
 
         {submitted ? (
           <Reveal>
-            <div className="mt-12 relative overflow-hidden rounded-3xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/15 via-card/60 to-amber-500/10 p-8 lg:p-12 text-center">
-              <div className="absolute inset-0 bg-grid opacity-[0.06]" />
+            <div className="mt-12 relative overflow-hidden rounded-3xl border border-forest/40 bg-gradient-to-br from-forest/12 via-card/60 to-gold/10 p-8 lg:p-12 text-center">
+              <div className="absolute inset-0 bg-dots opacity-30" />
               <div className="relative">
-                <div className="mx-auto h-20 w-20 rounded-full bg-emerald-500/20 ring-2 ring-emerald-500/40 grid place-items-center">
-                  <CheckCircle2 className="h-10 w-10 text-emerald-400" />
+                <div className="mx-auto h-20 w-20 rounded-full bg-forest/20 ring-2 ring-forest/40 grid place-items-center">
+                  <CheckCircle2 className="h-10 w-10 text-forest" />
                 </div>
                 <h3 className="mt-6 font-display text-3xl font-bold text-foreground">
                   You&apos;re registered.
@@ -131,11 +131,11 @@ export function CeremonySection() {
                 <p className="mt-3 text-muted-foreground">
                   We&apos;ve sent your confirmation and venue details to {form.email}.
                 </p>
-                <div className="mt-5 inline-flex flex-col items-center gap-1 px-6 py-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10">
-                  <span className="text-xs uppercase tracking-[0.22em] text-emerald-300 font-semibold">
+                <div className="mt-5 inline-flex flex-col items-center gap-1 px-6 py-3 rounded-xl border border-forest/30 bg-forest/10">
+                  <span className="text-xs uppercase tracking-[0.22em] text-forest-light font-semibold">
                     Reference Code
                   </span>
-                  <span className="font-mono text-2xl font-bold text-emerald-300 tracking-wider">
+                  <span className="font-mono text-2xl font-bold text-forest-light tracking-wider">
                     {submitted}
                   </span>
                 </div>
@@ -147,7 +147,7 @@ export function CeremonySection() {
             {/* Ticket options */}
             <Reveal>
               <div>
-                <div className="text-xs uppercase tracking-[0.22em] text-emerald-400 font-semibold mb-3">
+                <div className="text-xs uppercase tracking-[0.22em] text-forest font-semibold mb-3">
                   Ticket Options
                 </div>
                 <div className="space-y-3">
@@ -158,12 +158,12 @@ export function CeremonySection() {
                       className={cn(
                         "w-full text-left rounded-2xl border p-4 transition-all relative overflow-hidden",
                         form.ticketType === t.id
-                          ? "border-emerald-500/60 bg-emerald-500/10 ring-2 ring-emerald-500/40"
+                          ? "border-forest/60 bg-forest/10 ring-2 ring-forest/40"
                           : "border-border/60 bg-card/50 hover:border-border"
                       )}
                     >
                       {t.popular && (
-                        <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] font-bold uppercase bg-amber-500/30 text-amber-200 rounded-bl-lg">
+                        <span className="absolute top-0 right-0 px-2 py-0.5 text-[10px] font-bold uppercase bg-gold/30 text-gold-light rounded-bl-lg">
                           Most Popular
                         </span>
                       )}
@@ -171,7 +171,7 @@ export function CeremonySection() {
                         <div className="flex items-start gap-3">
                           <div className={cn(
                             "mt-0.5 h-4 w-4 rounded-full border-2 flex-shrink-0",
-                            form.ticketType === t.id ? "border-emerald-500 bg-emerald-500" : "border-border"
+                            form.ticketType === t.id ? "border-forest bg-forest" : "border-border"
                           )} />
                           <div>
                             <div className="font-semibold text-foreground">{t.name}</div>
@@ -188,7 +188,7 @@ export function CeremonySection() {
                         <div className="text-right flex-shrink-0">
                           <div className="font-display text-lg font-bold text-foreground">{t.price}</div>
                           {t.early !== "—" && (
-                            <div className="text-[10px] text-amber-300">Early: {t.early}</div>
+                            <div className="text-[10px] text-gold-light">Early: {t.early}</div>
                           )}
                         </div>
                       </div>
@@ -196,7 +196,7 @@ export function CeremonySection() {
                   ))}
                 </div>
 
-                <div className="mt-4 p-3 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs text-amber-200">
+                <div className="mt-4 p-3 rounded-xl border border-gold/30 bg-gold/5 text-xs text-gold-light">
                   Early-bird pricing ends {siteConfig.ceremony.earlyBirdDeadline}. Scholarship seats available for African youth and community leaders — indicate in the form below.
                 </div>
               </div>
@@ -206,7 +206,7 @@ export function CeremonySection() {
             <Reveal delay={0.1}>
               <div className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Ticket className="h-5 w-5 text-emerald-400" />
+                  <Ticket className="h-5 w-5 text-forest" />
                   <h3 className="font-display text-xl font-bold text-foreground">Register to attend</h3>
                 </div>
 
@@ -311,7 +311,7 @@ export function CeremonySection() {
                   <Button
                     onClick={submit}
                     disabled={submitting}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-background font-semibold"
+                    className="w-full bg-gradient-to-r from-forest to-forest-light hover:from-forest hover:to-forest-light text-cream font-semibold"
                   >
                     {submitting ? (
                       <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" />Registering…</>
@@ -339,8 +339,8 @@ function MetaCard({ icon: Icon, label, value, sub }: { icon: any; label: string;
       whileHover={{ y: -3 }}
       className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-5 flex items-start gap-4"
     >
-      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-amber-500/10 ring-1 ring-emerald-500/30 grid place-items-center flex-shrink-0">
-        <Icon className="h-5 w-5 text-emerald-400" strokeWidth={1.75} />
+      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-forest/20 to-gold/10 ring-1 ring-forest/30 grid place-items-center flex-shrink-0">
+        <Icon className="h-5 w-5 text-forest" strokeWidth={1.75} />
       </div>
       <div>
         <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold">

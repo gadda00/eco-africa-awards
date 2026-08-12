@@ -1,19 +1,20 @@
-// Eco Africa Awards - site configuration
+// Africa Climate Leadership Awards - site configuration
 export const siteConfig = {
-  name: "Eco Africa Awards",
-  shortName: "EAA",
+  name: "Africa Climate Leadership Awards",
+  shortName: "ACLA Awards",
+  initials: "ACLA",
   tagline: "Celebrating Climate Leadership Across Africa",
   parentOrg: "Africa Climate Leadership Academy",
   parentOrgShort: "ACLA",
   parentOrgUrl: "https://acla.io",
-  domain: "ecoafricaawards.com",
-  url: "https://ecoafricaawards.com",
+  domain: "ecoawardsafrica.com",
+  url: "https://ecoawardsafrica.com",
   email: "awards@acla.io",
   phone: "+254 711 672 118",
   whatsapp: "+254 711 672 118",
   location: "Nairobi, Kenya · Pan-African",
   ceremony: {
-    name: "Eco Africa Awards Ceremony 2026",
+    name: "Africa Climate Leadership Awards 2026",
     theme: "African Solutions for a Just Transition",
     date: "September 14 – 17, 2026",
     venue: "Kigali Convention Centre, Rwanda",

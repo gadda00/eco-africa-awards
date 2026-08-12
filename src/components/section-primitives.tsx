@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useInView, useMotionValue, animate } from "framer-motion";
+import { motion, useInView, animate } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 export function AnimatedCounter({
   value,
@@ -90,31 +91,37 @@ export function SectionHeading({
 }) {
   return (
     <div
-      className={`${align === "center" ? "text-center mx-auto" : "text-left"} max-w-3xl ${className ?? ""}`}
+      className={cn(
+        align === "center" ? "text-center mx-auto" : "text-left",
+        "max-w-3xl",
+        className
+      )}
     >
       {eyebrow && (
         <Reveal>
           <div
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs uppercase tracking-[0.22em] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 ${
+            className={cn(
+              "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs uppercase tracking-[0.22em] font-semibold border border-gold/40 bg-gold/10 text-gold shadow-warm",
               align === "center" ? "mx-auto" : ""
-            }`}
+            )}
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
             {eyebrow}
           </div>
         </Reveal>
       )}
       <Reveal delay={0.05}>
-        <h2 className="mt-5 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
+        <h2 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-forest leading-[1.05]">
           {title}
         </h2>
       </Reveal>
       {description && (
         <Reveal delay={0.1}>
           <p
-            className={`mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed ${
+            className={cn(
+              "mt-6 text-lg sm:text-xl text-foreground/70 leading-relaxed",
               align === "center" ? "mx-auto max-w-2xl" : ""
-            }`}
+            )}
           >
             {description}
           </p>

@@ -25,10 +25,10 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const accentMap: Record<string, { ring: string; text: string; bg: string }> = {
-  emerald: { ring: "ring-emerald-500/30", text: "text-emerald-400", bg: "bg-emerald-500/10" },
-  amber: { ring: "ring-amber-500/30", text: "text-amber-400", bg: "bg-amber-500/10" },
-  terracotta: { ring: "ring-orange-500/30", text: "text-orange-400", bg: "bg-orange-500/10" },
-  "deep-teal": { ring: "ring-teal-500/30", text: "text-teal-400", bg: "bg-teal-500/10" },
+  emerald: { ring: "ring-forest/30", text: "text-forest", bg: "bg-forest/10" },
+  amber: { ring: "ring-gold/30", text: "text-gold", bg: "bg-gold/10" },
+  terracotta: { ring: "ring-terracotta/30", text: "text-terracotta", bg: "bg-terracotta/10" },
+  "deep-teal": { ring: "ring-sky/30", text: "text-sky", bg: "bg-sky/8" },
 };
 
 type MatchResult = {
@@ -71,9 +71,9 @@ export function AiFeaturesSection() {
       id="ai-features"
       className="relative py-24 lg:py-32 bg-gradient-to-b from-background via-card/40 to-background"
     >
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
-      <div className="absolute top-1/4 right-0 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 left-0 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-forest/40 to-transparent" />
+      <div className="absolute top-1/4 right-0 h-72 w-72 rounded-full bg-forest/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 left-0 h-72 w-72 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
@@ -81,7 +81,7 @@ export function AiFeaturesSection() {
           title={
             <>
               The first awards platform{" "}
-              <span className="text-gradient-emerald">built with AI at its core.</span>
+              <span className="text-gradient-sunset">built with AI at its core.</span>
             </>
           }
           description="From nomination to judging, our AI tools make the awards more rigorous, more accessible, and more transparent — without ever replacing human judgement. Try the live Category Matchmaker below."
@@ -118,14 +118,14 @@ export function AiFeaturesSection() {
 
         {/* Live AI Category Matchmaker */}
         <Reveal delay={0.1}>
-          <div className="mt-12 lg:mt-16 relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-card/60 to-emerald-500/10 p-7 lg:p-10">
-            <div className="absolute inset-0 bg-grid opacity-[0.06]" />
-            <div className="absolute -top-32 -right-32 h-64 w-64 rounded-full bg-amber-500/20 blur-3xl" />
-            <div className="absolute -bottom-32 -left-32 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
+          <div className="mt-12 lg:mt-16 relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-to-br from-gold/10 via-card/60 to-gold/10 p-7 lg:p-10">
+            <div className="absolute inset-0 bg-dots opacity-30" />
+            <div className="absolute -top-32 -right-32 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
+            <div className="absolute -bottom-32 -left-32 h-64 w-64 rounded-full bg-forest/20 blur-3xl" />
 
             <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs uppercase tracking-[0.22em] font-semibold border border-amber-500/30 bg-amber-500/10 text-amber-300">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs uppercase tracking-[0.22em] font-semibold border border-gold/30 bg-gold/10 text-gold-light">
                   <Compass className="h-3.5 w-3.5" />
                   Live Demo
                 </div>
@@ -151,7 +151,7 @@ export function AiFeaturesSection() {
                   <Button
                     onClick={runMatcher}
                     disabled={matcherLoading}
-                    className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-background font-semibold"
+                    className="bg-gradient-to-r from-gold to-terracotta hover:from-gold-light hover:to-terracotta text-cream font-semibold"
                   >
                     {matcherLoading ? (
                       <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" />Matching…</>
@@ -163,7 +163,7 @@ export function AiFeaturesSection() {
               </div>
 
               <div className="lg:pl-8 lg:border-l lg:border-border/40">
-                <div className="text-xs uppercase tracking-wider text-emerald-400 font-semibold mb-3">
+                <div className="text-xs uppercase tracking-wider text-forest font-semibold mb-3">
                   Recommended Categories
                 </div>
                 <div className="space-y-3 min-h-[200px]">
@@ -186,14 +186,14 @@ export function AiFeaturesSection() {
                               className={cn(
                                 "rounded-xl border p-4",
                                 i === 0
-                                  ? "border-emerald-500/40 bg-emerald-500/10"
+                                  ? "border-forest/40 bg-forest/10"
                                   : "border-border/60 bg-background/40"
                               )}
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-2">
                                   {i === 0 && (
-                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-500/30 text-emerald-200">
+                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-forest/30 text-forest-light">
                                       Best fit
                                     </span>
                                   )}
@@ -201,13 +201,13 @@ export function AiFeaturesSection() {
                                     {cat?.name}
                                   </span>
                                 </div>
-                                <span className="text-xs text-amber-300 tabular-nums">
+                                <span className="text-xs text-gold-light tabular-nums">
                                   {m.score}%
                                 </span>
                               </div>
                               <div className="mt-1.5 h-1 rounded-full bg-muted overflow-hidden">
                                 <div
-                                  className="h-full bg-gradient-to-r from-emerald-500 to-amber-500"
+                                  className="h-full bg-gradient-to-r from-forest to-gold"
                                   style={{ width: `${m.score}%` }}
                                 />
                               </div>
@@ -257,7 +257,7 @@ export function AiFeaturesSection() {
                 </div>
 
                 <div className="mt-5 pt-4 border-t border-border/40 text-xs text-muted-foreground flex items-start gap-2">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                  <ShieldCheck className="h-3.5 w-3.5 text-forest flex-shrink-0 mt-0.5" />
                   <span>
                     AI suggestions are advisory. Final category choice rests with the nominator,
                     and all nominations are reviewed by human judges.

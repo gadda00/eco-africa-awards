@@ -9,8 +9,8 @@ import { Handshake } from "lucide-react";
 const tierOrder = ["Platinum", "Gold", "Silver", "Partner", "Media"] as const;
 
 const tierStyles: Record<string, string> = {
-  Platinum: "border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent",
-  Gold: "border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-transparent",
+  Platinum: "border-gold/30 bg-gradient-to-br from-gold/10 to-transparent",
+  Gold: "border-forest/30 bg-gradient-to-br from-forest/10 to-transparent",
   Silver: "border-border/60 bg-gradient-to-br from-muted/30 to-transparent",
   Partner: "border-border/60 bg-card/40",
   Media: "border-border/60 bg-card/40",
@@ -19,7 +19,7 @@ const tierStyles: Record<string, string> = {
 export function SponsorsSection() {
   return (
     <section id="sponsors" className="relative py-24 lg:py-32 bg-gradient-to-b from-background via-card/30 to-background">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
@@ -27,7 +27,7 @@ export function SponsorsSection() {
           title={
             <>
               The institutions standing{" "}
-              <span className="text-gradient-emerald">behind the awards.</span>
+              <span className="text-gradient-sunset">behind the awards.</span>
             </>
           }
           description="The Eco Africa Awards are made possible by partners who share ACLA's conviction that African climate leadership deserves a continental stage. We're grateful for their support."
@@ -74,11 +74,11 @@ export function SponsorsSection() {
         </div>
 
         <Reveal delay={0.1}>
-          <div className="mt-16 relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-card/60 to-amber-500/10 p-8 lg:p-12 text-center">
-            <div className="absolute inset-0 bg-grid opacity-[0.06]" />
+          <div className="mt-16 relative overflow-hidden rounded-3xl border border-forest/30 bg-gradient-to-br from-forest/10 via-card/60 to-gold/10 p-8 lg:p-12 text-center">
+            <div className="absolute inset-0 bg-dots opacity-30" />
             <div className="relative">
-              <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-amber-500/10 ring-1 ring-emerald-500/30 grid place-items-center">
-                <Handshake className="h-7 w-7 text-emerald-400" strokeWidth={1.5} />
+              <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-forest/20 to-gold/10 ring-1 ring-forest/30 grid place-items-center">
+                <Handshake className="h-7 w-7 text-forest" strokeWidth={1.5} />
               </div>
               <h3 className="mt-5 font-display text-2xl lg:text-3xl font-bold text-foreground">
                 Become a partner of the 2026 edition.
@@ -88,7 +88,7 @@ export function SponsorsSection() {
               </p>
               <Button
                 asChild
-                className="mt-7 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-background font-semibold"
+                className="mt-7 bg-gradient-to-r from-forest to-forest-light hover:from-forest hover:to-forest-light text-cream font-semibold"
               >
                 <a href="#contact">
                   Request a partnership pack

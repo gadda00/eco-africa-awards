@@ -57,8 +57,8 @@ const stages = [
 export function SelectionSection() {
   return (
     <section id="selection" className="relative py-24 lg:py-32 bg-background">
-      <div className="absolute inset-0 bg-grid opacity-[0.05]" />
-      <div className="absolute top-1/3 right-0 h-72 w-72 rounded-full bg-amber-500/8 blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-dots opacity-30" />
+      <div className="absolute top-1/3 right-0 h-72 w-72 rounded-full bg-gold/8 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
@@ -66,7 +66,7 @@ export function SelectionSection() {
           title={
             <>
               Six stages. Six criteria.{" "}
-              <span className="text-gradient-emerald">Zero shortcuts.</span>
+              <span className="text-gradient-sunset">Zero shortcuts.</span>
             </>
           }
           description="Every nomination travels the same rigorous path — from eligibility screening to AI-assisted review to multi-judge scoring and confidential verification. Transparency and equity are engineered into every step."
@@ -81,12 +81,12 @@ export function SelectionSection() {
                 transition={{ duration: 0.25 }}
                 className="group relative h-full rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-6 overflow-hidden"
               >
-                <div className="absolute top-0 right-0 font-display text-7xl font-bold text-border/30 leading-none translate-x-2 -translate-y-2 group-hover:text-emerald-500/20 transition-colors">
+                <div className="absolute top-0 right-0 font-display text-7xl font-bold text-border/30 leading-none translate-x-2 -translate-y-2 group-hover:text-forest/20 transition-colors">
                   {i + 1}
                 </div>
                 <div className="relative">
-                  <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-emerald-500/20 to-amber-500/10 ring-1 ring-emerald-500/30 grid place-items-center">
-                    <stage.icon className="h-5 w-5 text-emerald-400" strokeWidth={1.75} />
+                  <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-forest/20 to-gold/10 ring-1 ring-forest/30 grid place-items-center">
+                    <stage.icon className="h-5 w-5 text-forest" strokeWidth={1.75} />
                   </div>
                   <h3 className="mt-4 font-display text-lg font-bold text-foreground">
                     {stage.title}
@@ -103,10 +103,10 @@ export function SelectionSection() {
         {/* Scoring criteria */}
         <Reveal delay={0.1}>
           <div className="mt-16 lg:mt-20 relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-card/80 to-card/40 p-7 lg:p-10">
-            <div className="absolute inset-0 bg-grid opacity-[0.06]" />
+            <div className="absolute inset-0 bg-dots opacity-30" />
             <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-10">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.22em] font-semibold border border-amber-500/30 bg-amber-500/10 text-amber-300">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs uppercase tracking-[0.22em] font-semibold border border-gold/30 bg-gold/10 text-gold-light">
                   <Scale className="h-3.5 w-3.5" />
                   Scoring Criteria
                 </div>
@@ -129,7 +129,7 @@ export function SelectionSection() {
                   >
                     <div className="flex items-baseline justify-between mb-1.5">
                       <span className="text-sm font-semibold text-foreground">{c.name}</span>
-                      <span className="text-xs text-amber-300 tabular-nums">{c.weight}%</span>
+                      <span className="text-xs text-gold-light tabular-nums">{c.weight}%</span>
                     </div>
                     <div className="h-2 rounded-full bg-muted overflow-hidden">
                       <motion.div
@@ -137,7 +137,7 @@ export function SelectionSection() {
                         whileInView={{ width: `${c.weight * 3.5}%` }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8, delay: i * 0.05, ease: "easeOut" }}
-                        className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-amber-400 rounded-full"
+                        className="h-full bg-gradient-to-r from-forest via-forest-light to-gold rounded-full"
                       />
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">{c.description}</p>
@@ -152,7 +152,7 @@ export function SelectionSection() {
         <div className="mt-16 lg:mt-24">
           <Reveal>
             <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs uppercase tracking-[0.22em] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs uppercase tracking-[0.22em] font-semibold border border-forest/30 bg-forest/10 text-forest-light">
                 <Users className="h-3.5 w-3.5" />
                 Continental Judging Panel
               </div>
@@ -173,10 +173,10 @@ export function SelectionSection() {
                   whileHover={{ y: -3 }}
                   className="group relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-5 overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-forest/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500 to-amber-500 grid place-items-center text-background font-bold text-sm">
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-forest to-gold grid place-items-center text-cream font-bold text-sm">
                         {j.initials}
                       </div>
                       <div>
@@ -187,7 +187,7 @@ export function SelectionSection() {
                     <div className="mt-3 text-xs text-muted-foreground leading-snug">
                       {j.title}
                     </div>
-                    <div className="mt-1 text-xs font-medium text-emerald-400">{j.organization}</div>
+                    <div className="mt-1 text-xs font-medium text-forest">{j.organization}</div>
                     <div className="mt-3 flex flex-wrap gap-1">
                       {j.expertise.map((e) => (
                         <span

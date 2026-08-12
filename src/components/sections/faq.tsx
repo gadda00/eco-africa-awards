@@ -23,7 +23,7 @@ export function FaqSection() {
 
   return (
     <section id="faq" className="relative py-24 lg:py-32 bg-background">
-      <div className="absolute inset-0 bg-grid opacity-[0.05]" />
+      <div className="absolute inset-0 bg-dots opacity-30" />
 
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
@@ -31,7 +31,7 @@ export function FaqSection() {
           title={
             <>
               Answers to{" "}
-              <span className="text-gradient-emerald">the questions you have.</span>
+              <span className="text-gradient-sunset">the questions you have.</span>
             </>
           }
           description="From eligibility to the ceremony night itself — if you can't find your answer here, reach out via the contact form below."
@@ -47,7 +47,7 @@ export function FaqSection() {
                 className={cn(
                   "px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all",
                   filter === c.id
-                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-background"
+                    ? "bg-gradient-to-r from-forest to-forest-light text-cream"
                     : "border border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
                 )}
               >
@@ -67,14 +67,14 @@ export function FaqSection() {
                   initial={false}
                   className={cn(
                     "rounded-2xl border overflow-hidden transition-colors",
-                    isOpen ? "border-emerald-500/40 bg-emerald-500/5" : "border-border/60 bg-card/40"
+                    isOpen ? "border-forest/40 bg-forest/5" : "border-border/60 bg-card/40"
                   )}
                 >
                   <button
                     onClick={() => setOpen(isOpen ? null : item.id)}
                     className="w-full px-5 py-4 flex items-center gap-3 text-left"
                   >
-                    <HelpCircle className={cn("h-5 w-5 flex-shrink-0 transition-colors", isOpen ? "text-emerald-400" : "text-muted-foreground")} />
+                    <HelpCircle className={cn("h-5 w-5 flex-shrink-0 transition-colors", isOpen ? "text-forest" : "text-muted-foreground")} />
                     <span className="flex-1 font-semibold text-foreground text-sm lg:text-base">
                       {item.question}
                     </span>

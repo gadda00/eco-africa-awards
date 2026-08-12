@@ -49,7 +49,7 @@ export function ContactSection() {
 
   return (
     <section id="contact" className="relative py-24 lg:py-32 bg-gradient-to-b from-background via-card/30 to-background">
-      <div className="absolute top-1/3 right-0 h-72 w-72 rounded-full bg-emerald-500/8 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 right-0 h-72 w-72 rounded-full bg-forest/8 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
@@ -57,7 +57,7 @@ export function ContactSection() {
           title={
             <>
               Questions, partnerships,{" "}
-              <span className="text-gradient-emerald">or a story to share?</span>
+              <span className="text-gradient-sunset">or a story to share?</span>
             </>
           }
           description="Reach the Eco Africa Awards team directly. We respond within two business days."
@@ -105,7 +105,7 @@ export function ContactSection() {
                       target="_blank"
                       rel="noreferrer"
                       aria-label={s.label}
-                      className="h-10 w-10 rounded-lg border border-border/60 bg-background/60 grid place-items-center text-muted-foreground hover:text-emerald-400 hover:border-emerald-500/40 transition-colors"
+                      className="h-10 w-10 rounded-lg border border-border/60 bg-background/60 grid place-items-center text-muted-foreground hover:text-forest hover:border-forest/40 transition-colors"
                     >
                       <s.icon className="h-4 w-4" />
                     </a>
@@ -118,10 +118,10 @@ export function ContactSection() {
           {/* Contact form */}
           <Reveal delay={0.1} className="lg:col-span-3">
             {submitted ? (
-              <div className="rounded-3xl border border-emerald-500/40 bg-emerald-500/10 p-8 lg:p-12 text-center h-full grid place-items-center">
+              <div className="rounded-3xl border border-forest/40 bg-forest/10 p-8 lg:p-12 text-center h-full grid place-items-center">
                 <div>
-                  <div className="mx-auto h-16 w-16 rounded-full bg-emerald-500/20 ring-2 ring-emerald-500/40 grid place-items-center">
-                    <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+                  <div className="mx-auto h-16 w-16 rounded-full bg-forest/20 ring-2 ring-forest/40 grid place-items-center">
+                    <CheckCircle2 className="h-8 w-8 text-forest" />
                   </div>
                   <h3 className="mt-5 font-display text-2xl font-bold text-foreground">Message sent.</h3>
                   <p className="mt-2 text-muted-foreground">
@@ -142,7 +142,7 @@ export function ContactSection() {
             ) : (
               <div className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-6 lg:p-8">
                 <div className="flex items-center gap-2 mb-5">
-                  <MessageSquare className="h-5 w-5 text-emerald-400" />
+                  <MessageSquare className="h-5 w-5 text-forest" />
                   <h3 className="font-display text-xl font-bold text-foreground">Send a message</h3>
                 </div>
 
@@ -209,7 +209,7 @@ export function ContactSection() {
                   <Button
                     onClick={submit}
                     disabled={submitting}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-background font-semibold"
+                    className="w-full bg-gradient-to-r from-forest to-forest-light hover:from-forest hover:to-forest-light text-cream font-semibold"
                   >
                     {submitting ? (
                       <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" />Sending…</>
@@ -233,11 +233,11 @@ function ContactCard({ icon: Icon, label, value, sub, href }: { icon: any; label
     <motion.div whileHover={{ y: -2 }}>
       <Wrapper
         {...(href ? { href } : {})}
-        className="block rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-5 hover:border-emerald-500/40 transition-colors"
+        className="block rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-5 hover:border-forest/40 transition-colors"
       >
         <div className="flex items-start gap-4">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-amber-500/10 ring-1 ring-emerald-500/30 grid place-items-center flex-shrink-0">
-            <Icon className="h-5 w-5 text-emerald-400" strokeWidth={1.75} />
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-forest/20 to-gold/10 ring-1 ring-forest/30 grid place-items-center flex-shrink-0">
+            <Icon className="h-5 w-5 text-forest" strokeWidth={1.75} />
           </div>
           <div>
             <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold">
