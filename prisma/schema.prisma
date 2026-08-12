@@ -1,4 +1,4 @@
-// Prisma schema for Eco Africa Awards platform
+// Prisma schema for Africa Climate Leadership Awards
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,6 +7,83 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+// ============================================================
+// AUTH & USERS
+// ============================================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  passwordHash  String?
+  role          String   @default("VIEWER") // ADMIN, JUDGE, VIEWER
+  avatarUrl     String?
+  bio           String?
+  title         String?
+  organization  String?
+  country       String?
+  expertise     String?  // JSON array of expertise tags (for judges)
+  isActive      Boolean  @default(true)
+  lastLoginAt   DateTime?
+
+  // For judges: which categories they're assigned to (JSON array of category IDs)
+  assignedCategories String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  reviews       Review[]
+  auditLogs    AuditLog[]
+  statusChanges StatusChange[]
+  accounts      Account[]
+  sessions      Session[]
+
+  @@index([role, isActive])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================================
+// AWARDS — NOMINATIONS, REVIEWS, REGISTRATIONS
+// ============================================================
 
 model Nomination {
   id              String   @id @default(cuid())
@@ -21,50 +98,60 @@ model Nomination {
   nomineeWebsite  String?
   nomineeLinkedin String?
 
-  // Self-nomination or nominating someone else
   selfNomination  Boolean  @default(false)
   nominatorName   String
   nominatorEmail  String
   nominatorOrg    String?
-  nominatorRel    String? // relationship to nominee
+  nominatorRel    String?
 
-  // The actual case for the award
-  summary         String   // short summary (300 chars)
-  justification   String   // long-form justification (min 500 chars)
-  impactMetrics   String?  // JSON string of impact metrics
-  supportingLinks String?  // JSON array of URLs
-  mediaUrl        String?  // optional video / portfolio URL
+  summary         String
+  justification   String
+  impactMetrics   String?
+  supportingLinks String?
+  mediaUrl        String?
 
-  // Eligibility acknowledgements
   confirmsConsent Boolean  @default(false)
   confirmsTruthful Boolean @default(false)
-  confirmsAfrican  Boolean @default(false) // nominee is based in / from Africa
+  confirmsAfrican  Boolean @default(false)
 
-  // Status workflow: DRAFT → SUBMITTED → UNDER_REVIEW → SHORTLISTED → FINALIST → WINNER / NOT_SELECTED
-  status          String   @default("SUBMITTED") // SUBMITTED, UNDER_REVIEW, SHORTLISTED, FINALIST, WINNER, NOT_SELECTED
-  aiSummary       String?  // AI-generated summary stored after submission
-  aiCategoryMatch String?  // AI suggested category fit (JSON)
-  aiEligibility   String?  // AI eligibility notes (JSON)
+  // Status workflow
+  // DRAFT -> SUBMITTED -> UNDER_REVIEW -> SHORTLISTED -> FINALIST -> WINNER
+  //                                                \-> NOT_SELECTED
+  status          String   @default("SUBMITTED")
+  statusReason    String?  // why status changed (e.g. "shortlisted by panel")
+  assignedJudgeIds String? // JSON array of judge IDs
 
-  // Review scoring (filled by judges)
+  aiSummary       String?
+  aiCategoryMatch String?
+  aiEligibility   String?
+
   totalScore      Float?
   reviewsCount    Int      @default(0)
 
+  // Winner fields (filled when status = WINNER)
+  winnerYear      Int?
+  winnerHighlight String? // short public highlight for hall of fame
+  winnerStory     String? // longer public story
+  winnerPhotoUrl  String?
+  isPublic       Boolean  @default(false) // shown in hall of fame
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  submittedAt     DateTime?
 
   reviews         Review[]
+  statusChanges   StatusChange[]
 
   @@index([categoryId, status])
   @@index([status])
   @@index([nomineeCountry])
+  @@index([winnerYear])
 }
 
 model Review {
   id            String   @id @default(cuid())
   nominationId  String
   judgeId       String
-  judgeName     String
 
   // Scoring criteria (each 0-10)
   scoreImpact       Int
@@ -74,32 +161,55 @@ model Review {
   scoreLeadership   Int
   scoreEquity       Int
 
-  totalScore    Float   // weighted total
+  totalScore    Float   // weighted total (0-10 scale)
   comments      String?
   recommendation String? // SELECT, SHORTLIST, DECLINE
+  coiDeclared   Boolean @default(false) // conflict of interest declared
 
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   nomination    Nomination @relation(fields: [nominationId], references: [id], onDelete: Cascade)
+  judge         User       @relation(fields: [judgeId], references: [id], onDelete: Cascade)
 
   @@unique([nominationId, judgeId])
+  @@index([nominationId])
+}
+
+model StatusChange {
+  id           String   @id @default(cuid())
+  nominationId String
+  changedById   String
+  fromStatus   String
+  toStatus     String
+  reason       String?
+  createdAt    DateTime @default(now())
+
+  nomination   Nomination @relation(fields: [nominationId], references: [id], onDelete: Cascade)
+  changedBy    User       @relation(fields: [changedById], references: [id], onDelete: Cascade)
+
+  @@index([nominationId])
 }
 
 model Registration {
-  id          String   @id @default(cuid())
-  referenceCode String @unique
-  fullName    String
-  email       String
-  phone       String?
-  organization String?
-  role        String?  // Attendee, Press, Partner, Speaker, Judge
-  country     String
-  ticketType  String   // GENERAL, VIP, PRESS, SPEAKER, STUDENT
-  dietary     String?
+  id            String   @id @default(cuid())
+  referenceCode String   @unique
+  fullName      String
+  email         String
+  phone         String?
+  organization  String?
+  role          String?
+  country       String
+  ticketType    String   // GENERAL, VIP, PRESS, SPEAKER, STUDENT
+  dietary       String?
   accessibility String?
-  agreesTerms Boolean  @default(false)
-  newsletter  Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  agreesTerms   Boolean  @default(false)
+  newsletter    Boolean  @default(true)
+  status        String   @default("CONFIRMED") // CONFIRMED, CHECKED_IN, CANCELLED
+  createdAt     DateTime @default(now())
+
+  @@index([status])
+  @@index([ticketType])
 }
 
 model ContactMessage {
@@ -109,25 +219,73 @@ model ContactMessage {
   subject   String
   message   String
   organization String?
-  category  String   @default("general") // general, partnership, press, nominate-help, other
+  category  String   @default("general")
   status    String   @default("new") // new, read, replied, archived
   createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([category])
 }
 
 model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
-  source    String   @default("site") // site, ceremony, nomination
+  source    String   @default("site")
   createdAt DateTime @default(now())
 }
 
-// Audit log for AI feature usage (privacy-first, no PII beyond email hash)
+// ============================================================
+// SYSTEM — AI USAGE LOG, AUDIT LOG, ANNOUNCEMENTS, SETTINGS
+// ============================================================
+
 model AiUsageLog {
   id        String   @id @default(cuid())
-  feature   String   // ai_assist, ai_eligibility, ai_match
+  feature   String
   emailHash String?
   success   Boolean
   tokens    Int      @default(0)
   createdAt DateTime @default(now())
+
+  @@index([feature, success])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // e.g. "nomination.status_change", "user.login"
+  entity    String?  // e.g. "nomination", "user"
+  entityId  String?
+  metadata  String?  // JSON string of additional data
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([action])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String
+  body      String   // markdown
+  category  String   @default("news") // news, update, deadline, ceremony
+  isPublished Boolean @default(false)
+  isPinned   Boolean  @default(false)
+  publishedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isPublished, publishedAt])
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  updatedAt DateTime @updatedAt
 }
