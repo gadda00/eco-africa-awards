@@ -1,0 +1,133 @@
+// Prisma schema for Eco Africa Awards platform
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Nomination {
+  id              String   @id @default(cuid())
+  referenceCode   String   @unique
+  categoryId      String
+  nomineeName     String
+  nomineeTitle    String?
+  nomineeOrg      String?
+  nomineeCountry  String
+  nomineeEmail    String?
+  nomineePhone    String?
+  nomineeWebsite  String?
+  nomineeLinkedin String?
+
+  // Self-nomination or nominating someone else
+  selfNomination  Boolean  @default(false)
+  nominatorName   String
+  nominatorEmail  String
+  nominatorOrg    String?
+  nominatorRel    String? // relationship to nominee
+
+  // The actual case for the award
+  summary         String   // short summary (300 chars)
+  justification   String   // long-form justification (min 500 chars)
+  impactMetrics   String?  // JSON string of impact metrics
+  supportingLinks String?  // JSON array of URLs
+  mediaUrl        String?  // optional video / portfolio URL
+
+  // Eligibility acknowledgements
+  confirmsConsent Boolean  @default(false)
+  confirmsTruthful Boolean @default(false)
+  confirmsAfrican  Boolean @default(false) // nominee is based in / from Africa
+
+  // Status workflow: DRAFT → SUBMITTED → UNDER_REVIEW → SHORTLISTED → FINALIST → WINNER / NOT_SELECTED
+  status          String   @default("SUBMITTED") // SUBMITTED, UNDER_REVIEW, SHORTLISTED, FINALIST, WINNER, NOT_SELECTED
+  aiSummary       String?  // AI-generated summary stored after submission
+  aiCategoryMatch String?  // AI suggested category fit (JSON)
+  aiEligibility   String?  // AI eligibility notes (JSON)
+
+  // Review scoring (filled by judges)
+  totalScore      Float?
+  reviewsCount    Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  reviews         Review[]
+
+  @@index([categoryId, status])
+  @@index([status])
+  @@index([nomineeCountry])
+}
+
+model Review {
+  id            String   @id @default(cuid())
+  nominationId  String
+  judgeId       String
+  judgeName     String
+
+  // Scoring criteria (each 0-10)
+  scoreImpact       Int
+  scoreInnovation   Int
+  scoreScale        Int
+  scoreSustainability Int
+  scoreLeadership   Int
+  scoreEquity       Int
+
+  totalScore    Float   // weighted total
+  comments      String?
+  recommendation String? // SELECT, SHORTLIST, DECLINE
+
+  createdAt     DateTime @default(now())
+
+  nomination    Nomination @relation(fields: [nominationId], references: [id], onDelete: Cascade)
+
+  @@unique([nominationId, judgeId])
+}
+
+model Registration {
+  id          String   @id @default(cuid())
+  referenceCode String @unique
+  fullName    String
+  email       String
+  phone       String?
+  organization String?
+  role        String?  // Attendee, Press, Partner, Speaker, Judge
+  country     String
+  ticketType  String   // GENERAL, VIP, PRESS, SPEAKER, STUDENT
+  dietary     String?
+  accessibility String?
+  agreesTerms Boolean  @default(false)
+  newsletter  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  organization String?
+  category  String   @default("general") // general, partnership, press, nominate-help, other
+  status    String   @default("new") // new, read, replied, archived
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  source    String   @default("site") // site, ceremony, nomination
+  createdAt DateTime @default(now())
+}
+
+// Audit log for AI feature usage (privacy-first, no PII beyond email hash)
+model AiUsageLog {
+  id        String   @id @default(cuid())
+  feature   String   // ai_assist, ai_eligibility, ai_match
+  emailHash String?
+  success   Boolean
+  tokens    Int      @default(0)
+  createdAt DateTime @default(now())
+}
