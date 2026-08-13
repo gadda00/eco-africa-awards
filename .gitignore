@@ -61,3 +61,4 @@ db/*.db-journal
 # Sandbox-only configs
 .zscripts/
 tests/tool-results/
+tool-results/
