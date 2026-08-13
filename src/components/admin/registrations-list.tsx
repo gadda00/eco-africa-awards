@@ -7,6 +7,7 @@ import { Search, Download, ChevronLeft, ChevronRight, CheckCircle2 } from "lucid
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { downloadCsv } from "@/lib/csv-export";
 
 type Registration = {
   id: string;
@@ -75,19 +76,11 @@ export function AdminRegistrationsClient({
 
   const exportCsv = () => {
     const headers = ["Reference", "Name", "Email", "Phone", "Org", "Role", "Country", "Ticket", "Status", "Registered"];
-    const rows = registrations.map((r) => [
+    downloadCsv(`registrations-${new Date().toISOString().slice(0, 10)}.csv`, headers, registrations.map((r) => [
       r.referenceCode, r.fullName, r.email, r.phone ?? "", r.organization ?? "",
       r.role ?? "", r.country, r.ticketType, r.status,
       new Date(r.createdAt).toISOString().slice(0, 10),
-    ]);
-    const csv = [headers, ...rows].map((row) => row.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `registrations-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    ]));
     toast.success(`Exported ${registrations.length} registrations`);
   };
 

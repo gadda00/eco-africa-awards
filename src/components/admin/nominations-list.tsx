@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Filter, Download, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { awardCategories, africanCountries } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { downloadCsv } from "@/lib/csv-export";
 
 type Nomination = {
   id: string;
@@ -42,6 +44,17 @@ export function AdminNominationsClient({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkStatus, setBulkStatus] = useState("");
   const [bulkLoading, setBulkLoading] = useState(false);
+
+  // Clear selection whenever filters change (otherwise stale IDs persist)
+  useEffect(() => {
+    setSelected(new Set());
+  }, [filters.status, filters.categoryId, filters.country, filters.q, page]);
+
+  const [searchInput, setSearchInput] = useState(filters.q);
+  const debouncedSearch = useDebouncedValue(searchInput, 350);
+  useEffect(() => {
+    if (debouncedSearch !== filters.q) updateFilter("q", debouncedSearch);
+  }, [debouncedSearch, filters.q]);
 
   const allChecked = nominations.length > 0 && selected.size === nominations.length;
   const someChecked = selected.size > 0 && !allChecked;
@@ -78,7 +91,7 @@ export function AdminNominationsClient({
 
   const exportCsv = () => {
     const headers = ["Reference", "Nominee", "Country", "Category", "Status", "Score", "Reviews", "Submitted"];
-    const rows = nominations.map((n) => [
+    downloadCsv(`nominations-${new Date().toISOString().slice(0, 10)}.csv`, headers, nominations.map((n) => [
       n.referenceCode,
       n.nomineeName,
       n.nomineeCountry,
@@ -87,15 +100,7 @@ export function AdminNominationsClient({
       n.totalScore?.toFixed(2) ?? "",
       n.reviewsCount,
       new Date(n.createdAt).toISOString().slice(0, 10),
-    ]);
-    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `nominations-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    ]));
     toast.success(`Exported ${nominations.length} nominations`);
   };
 
@@ -137,9 +142,10 @@ export function AdminNominationsClient({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search nominee, ref code…"
-              defaultValue={filters.q}
-              onChange={(e) => updateFilter("q", e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="pl-9"
+              aria-label="Search nominations"
             />
           </div>
           <select

@@ -15,7 +15,7 @@ export default async function AdminSettingsPage() {
 
   return (
     <AdminSettingsClient
-      settings={settings}
+      settings={settings.map((s) => ({ ...s, updatedAt: s.updatedAt.toISOString() }))}
       audit={recentAudit.map((a) => ({
         id: a.id,
         action: a.action,

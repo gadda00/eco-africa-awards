@@ -21,7 +21,7 @@ export function WinnersIndexClient({
   categories,
 }: {
   winners: Winner[];
-  categories: { id: string; shortName: string; name: string }[];
+  categories: { id: string; shortName: string; name: string; slug: string }[];
 }) {
   const [yearFilter, setYearFilter] = useState<number | "all">("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -91,13 +91,13 @@ export function WinnersIndexClient({
           {filtered.map((w) => {
             const cat = categories.find((c) => c.id === w.categoryId);
             const href = w.type === "live" ? `/winners/${w.year}/${w.id}` : `/categories/${cat?.slug ?? ""}`;
-            const Wrapper = w.type === "live" ? Link : "div";
+            const isLink = w.type === "live";
             return (
-              <Wrapper
+              <Link
                 key={w.id}
-                {...(w.type === "live" ? { href } : {})}
+                href={href}
                 className={`block rounded-2xl border border-forest/15 bg-card p-6 shadow-warm ${
-                  w.type === "live" ? "hover:shadow-warm-lg hover:-translate-y-0.5 transition-all cursor-pointer" : ""
+                  isLink ? "hover:shadow-warm-lg hover:-translate-y-0.5 transition-all cursor-pointer" : ""
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -117,14 +117,14 @@ export function WinnersIndexClient({
                   {cat?.name}
                 </div>
                 <p className="mt-3 text-sm text-foreground/80 italic leading-relaxed line-clamp-3">
-                  "{w.highlight}"
+                  &ldquo;{w.highlight}&rdquo;
                 </p>
-                {w.type === "live" && (
+                {isLink && (
                   <div className="mt-4 text-xs text-forest font-semibold inline-flex items-center gap-1">
                     Read full story <ArrowRight className="h-3 w-3" />
                   </div>
                 )}
-              </Wrapper>
+              </Link>
             );
           })}
         </div>

@@ -115,7 +115,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
         <div className="p-3 border-t border-cream/15 space-y-1">
-          <Link href="/" target="_blank" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-cream/70 hover:text-cream hover:bg-cream/5 transition-colors">
+          <Link href="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-cream/70 hover:text-cream hover:bg-cream/5 transition-colors">
             <ExternalLink className="h-4 w-4" />
             View public site
           </Link>
@@ -167,7 +167,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <main className="lg:pl-64 min-h-screen">
+      <main id="main" className="lg:pl-64 min-h-screen">
         <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>

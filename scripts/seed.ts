@@ -15,8 +15,20 @@ const db = new PrismaClient();
 
 async function main() {
   const adminEmail = (process.env.SEED_ADMIN_EMAIL || "admin@ecoawardsafrica.com").toLowerCase().trim();
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "ACLA-Admin-2026!";
-  const passwordHash = await bcrypt.hash(adminPassword, 12);
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+
+  if (!adminPassword) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "SEED_ADMIN_PASSWORD environment variable must be set when running in production. " +
+          "Generate a strong password (12+ chars, upper/lower/number/symbol) and set it before running `bun run seed`."
+      );
+    }
+    // Dev-only default — never use in production
+    console.warn("⚠ Using dev-only default admin password. Set SEED_ADMIN_PASSWORD for production.");
+  }
+  const effectivePassword = adminPassword || "ACLA-Admin-2026!";
+  const passwordHash = await bcrypt.hash(effectivePassword, 12);
 
   // Admin user
   const admin = await db.user.upsert({

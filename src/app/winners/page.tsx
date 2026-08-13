@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { WinnersIndexClient } from "@/components/sections/winners-index-client";
 import { pastWinners, awardCategories } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR — revalidate every hour
 
 export const metadata = {
   title: "Hall of Fame",

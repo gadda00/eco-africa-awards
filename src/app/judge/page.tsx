@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import { FileText, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { safeJsonArray } from "@/lib/safe-json";
+import { StatTile } from "@/components/admin/stat-tile";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +23,7 @@ export default async function JudgeDashboard() {
   });
   if (!judge) notFound();
 
-  const assignedCategoryIds: string[] = judge.assignedCategories
-    ? JSON.parse(judge.assignedCategories)
-    : [];
+  const assignedCategoryIds: string[] = safeJsonArray<string>(judge.assignedCategories);
 
   // Nominations in assigned categories
   const allNominations = await db.nomination.findMany({
@@ -169,23 +169,3 @@ export default async function JudgeDashboard() {
   );
 }
 
-function StatTile({
-  label, value, icon: Icon, accent,
-}: { label: string; value: number | string; icon: any; accent: "forest" | "gold" | "terracotta" | "savanna" }) {
-  const styles = {
-    forest: { bg: "bg-forest/10", text: "text-forest", ring: "ring-forest/30" },
-    gold: { bg: "bg-gold/15", text: "text-gold", ring: "ring-gold/40" },
-    terracotta: { bg: "bg-terracotta/10", text: "text-terracotta", ring: "ring-terracotta/40" },
-    savanna: { bg: "bg-savanna/25", text: "text-terracotta", ring: "ring-savanna/50" },
-  }[accent];
-
-  return (
-    <div className="rounded-2xl border border-forest/15 bg-card p-5 shadow-warm">
-      <div className={`h-10 w-10 rounded-xl ${styles.bg} ${styles.ring} ring-1 grid place-items-center mb-3`}>
-        <Icon className={`h-5 w-5 ${styles.text}`} />
-      </div>
-      <div className="font-display text-3xl font-bold text-foreground tabular-nums">{value}</div>
-      <div className="text-sm text-muted-foreground mt-0.5">{label}</div>
-    </div>
-  );
-}

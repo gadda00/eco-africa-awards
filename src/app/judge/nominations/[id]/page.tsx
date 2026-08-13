@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { JudgeScoringClient } from "@/components/admin/judge-scoring";
+import { safeJsonArray } from "@/lib/safe-json";
 
 export const dynamic = "force-dynamic";
 
@@ -56,11 +57,7 @@ export default async function JudgeNominationPage({ params }: { params: Promise<
       where: { id: session.user.id },
       select: { assignedCategories: true },
     });
-    const assigned: string[] = judge?.assignedCategories
-      ? (() => {
-          try { return JSON.parse(judge.assignedCategories); } catch { return []; }
-        })()
-      : [];
+    const assigned: string[] = safeJsonArray<string>(judge?.assignedCategories ?? null);
     if (!assigned.includes(nomination.categoryId)) {
       notFound();
     }

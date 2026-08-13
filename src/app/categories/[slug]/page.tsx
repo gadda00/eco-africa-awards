@@ -9,7 +9,7 @@ import { ArrowLeft, ArrowRight, Check, Trophy, Users, Sparkles } from "lucide-re
 import * as Icons from "lucide-react";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR — revalidate every hour
 
 type Params = { slug: string };
 

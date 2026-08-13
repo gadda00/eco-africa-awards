@@ -72,9 +72,12 @@ export function FaqSection() {
                 >
                   <button
                     onClick={() => setOpen(isOpen ? null : item.id)}
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-${item.id}-content`}
+                    id={`faq-${item.id}-button`}
                     className="w-full px-5 py-4 flex items-center gap-3 text-left"
                   >
-                    <HelpCircle className={cn("h-5 w-5 flex-shrink-0 transition-colors", isOpen ? "text-forest" : "text-muted-foreground")} />
+                    <HelpCircle className={cn("h-5 w-5 flex-shrink-0 transition-colors", isOpen ? "text-forest" : "text-muted-foreground")} aria-hidden="true" />
                     <span className="flex-1 font-semibold text-foreground text-sm lg:text-base">
                       {item.question}
                     </span>
@@ -83,6 +86,7 @@ export function FaqSection() {
                         "h-4 w-4 text-muted-foreground transition-transform flex-shrink-0",
                         isOpen && "rotate-180"
                       )}
+                      aria-hidden="true"
                     />
                   </button>
                   <AnimatePresence initial={false}>
@@ -94,7 +98,12 @@ export function FaqSection() {
                         transition={{ duration: 0.25 }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-5 pl-13 text-sm text-muted-foreground leading-relaxed">
+                        <div
+                          id={`faq-${item.id}-content`}
+                          role="region"
+                          aria-labelledby={`faq-${item.id}-button`}
+                          className="px-5 pb-5 pl-13 text-sm text-muted-foreground leading-relaxed"
+                        >
                           {item.answer}
                         </div>
                       </motion.div>

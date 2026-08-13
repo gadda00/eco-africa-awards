@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Megaphone, Pin } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR — revalidate every hour
 
 export const metadata = {
   title: "News & Announcements",

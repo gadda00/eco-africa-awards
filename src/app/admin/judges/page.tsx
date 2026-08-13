@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { AdminJudgesClient } from "@/components/admin/judges-list";
 import { awardCategories } from "@/lib/data";
+import { safeJsonArray } from "@/lib/safe-json";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +34,8 @@ export default async function AdminJudgesPage() {
         title: j.title ?? "",
         organization: j.organization ?? "",
         country: j.country ?? "",
-        expertise: j.expertise ? JSON.parse(j.expertise) : [],
-        assignedCategories: j.assignedCategories ? JSON.parse(j.assignedCategories) : [],
+        expertise: safeJsonArray<string>(j.expertise),
+        assignedCategories: safeJsonArray<string>(j.assignedCategories),
         isActive: j.isActive,
         lastLoginAt: j.lastLoginAt?.toISOString() ?? null,
         createdAt: j.createdAt.toISOString(),

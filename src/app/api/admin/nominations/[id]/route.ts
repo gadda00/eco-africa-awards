@@ -23,7 +23,7 @@ export async function PATCH(
     }
 
     // Discriminate by `action` field
-    if (body?.action === "status") {
+    if (body && typeof body === "object" && "action" in body && body.action === "status") {
       const parsed = nominationStatusSchema.safeParse(body);
       if (!parsed.success) {
         return NextResponse.json(
@@ -73,7 +73,7 @@ export async function PATCH(
       return NextResponse.json({ ok: true, status });
     }
 
-    if (body?.action === "winner") {
+    if (body && typeof body === "object" && "action" in body && body.action === "winner") {
       const parsed = nominationWinnerSchema.safeParse(body);
       if (!parsed.success) {
         return NextResponse.json(

@@ -27,7 +27,7 @@ const tierDescriptions: Record<string, string> = {
   Gold: "Cornerstone supporters of the continental celebration.",
   Silver: "Sustaining partners making the awards possible.",
   Partner: "Academic, institutional, and continental body partners.",
-  Media: "Media partners extending the awards&apos; continental reach.",
+  Media: "Media partners extending the awards' continental reach.",
 };
 
 export default function SponsorsPage() {

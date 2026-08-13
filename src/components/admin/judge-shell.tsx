@@ -111,6 +111,7 @@ export function JudgeShell({ children }: { children: React.ReactNode }) {
           <Link
             href="/"
             target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-cream/70 hover:text-cream hover:bg-cream/5 transition-colors"
           >
             <ExternalLink className="h-4 w-4" />
@@ -164,7 +165,7 @@ export function JudgeShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main */}
-      <main className="lg:pl-64 min-h-screen">
+      <main id="main" className="lg:pl-64 min-h-screen">
         <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>

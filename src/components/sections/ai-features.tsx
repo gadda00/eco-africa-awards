@@ -96,12 +96,21 @@ export function AiFeaturesSection() {
               <Reveal key={feat.title} delay={(i % 3) * 0.08}>
                 <motion.div
                   whileHover={{ y: -4 }}
-                  className="group relative h-full overflow-hidden rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-6"
+                  className={`group relative h-full overflow-hidden rounded-2xl border bg-card/50 backdrop-blur-sm p-6 ${
+                    feat.available === false ? "border-dashed border-border/60 opacity-75" : "border-border/60"
+                  }`}
                 >
                   <div className={`absolute -top-12 -right-12 h-24 w-24 rounded-full ${accent.bg} blur-2xl opacity-50 group-hover:opacity-100 transition-opacity`} />
                   <div className="relative">
-                    <div className={`h-12 w-12 rounded-xl ${accent.bg} ${accent.ring} ring-1 grid place-items-center`}>
-                      <Icon className={`h-6 w-6 ${accent.text}`} strokeWidth={1.5} />
+                    <div className="flex items-start justify-between gap-2">
+                      <div className={`h-12 w-12 rounded-xl ${accent.bg} ${accent.ring} ring-1 grid place-items-center`}>
+                        <Icon className={`h-6 w-6 ${accent.text}`} strokeWidth={1.5} />
+                      </div>
+                      {feat.available === false && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-muted/60 text-muted-foreground border border-border">
+                          Coming soon
+                        </span>
+                      )}
                     </div>
                     <h3 className="mt-5 font-display text-lg font-bold text-foreground">
                       {feat.title}
@@ -218,7 +227,7 @@ export function AiFeaturesSection() {
                           );
                         })}
                         <Button asChild variant="outline" size="sm" className="mt-2 w-full">
-                          <a href="#nominate">
+                          <a href={`#nominate?categoryId=${matcherResults[0]?.categoryId ?? ""}`}>
                             Nominate in this category
                             <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                           </a>

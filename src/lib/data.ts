@@ -751,13 +751,7 @@ export const aiFeatures = [
       "Draft your nomination in your own voice; our AI reviews it for evidence, alignment with category criteria, and clarity — then offers specific, line-level suggestions to make your case stronger.",
     icon: "Sparkles",
     accent: "emerald" as const,
-  },
-  {
-    title: "AI Eligibility Checker",
-    description:
-      "Before you submit, our AI checks your nomination against the category's eligibility rules and historical patterns — flagging missing evidence or category mismatches in seconds.",
-    icon: "ShieldCheck",
-    accent: "amber" as const,
+    available: true,
   },
   {
     title: "AI Category Matchmaker",
@@ -765,6 +759,15 @@ export const aiFeatures = [
       "Not sure which of the 12 categories fits your nominee best? Paste a short description and our AI ranks category fit with confidence scores and brief rationales.",
     icon: "Compass",
     accent: "terracotta" as const,
+    available: true,
+  },
+  {
+    title: "AI Eligibility Checker",
+    description:
+      "Before you submit, our AI checks your nomination against the category's eligibility rules and historical patterns — flagging missing evidence or category mismatches in seconds.",
+    icon: "ShieldCheck",
+    accent: "amber" as const,
+    available: false,
   },
   {
     title: "AI-Assisted Judging Integrity",
@@ -772,6 +775,7 @@ export const aiFeatures = [
       "Every nomination is screened for completeness, internal consistency, and category-fit by our AI scoring engine — surfacing strengths and gaps to the human judges, never replacing them.",
     icon: "Scale",
     accent: "emerald" as const,
+    available: false,
   },
   {
     title: "AI Climate Impact Estimator",
@@ -779,6 +783,7 @@ export const aiFeatures = [
       "Convert your initiative's raw numbers — hectares restored, homes solar-powered, tonnes diverted — into standardised, comparable climate impact metrics with our AI calculator.",
     icon: "Calculator",
     accent: "amber" as const,
+    available: false,
   },
   {
     title: "Continental Knowledge Hub",
@@ -786,5 +791,6 @@ export const aiFeatures = [
       "Our AI indexes every published ACLA case study and past winner profile, letting nominators and judges ask natural-language questions about African climate leadership.",
     icon: "Library",
     accent: "deep-teal" as const,
+    available: false,
   },
 ];

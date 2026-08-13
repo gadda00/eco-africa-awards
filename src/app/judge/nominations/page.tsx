@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import { awardCategories, africanCountries } from "@/lib/data";
 import { JudgeNominationsClient } from "@/components/admin/judge-nominations-list";
+import { safeJsonArray } from "@/lib/safe-json";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +23,7 @@ export default async function JudgeNominationsPage({
   });
   if (!judge) notFound();
 
-  const assignedCategoryIds: string[] = judge.assignedCategories
-    ? JSON.parse(judge.assignedCategories)
-    : [];
+  const assignedCategoryIds: string[] = safeJsonArray<string>(judge.assignedCategories);
 
   const resolved = await searchParams;
   const sp = (k: string) => {
@@ -50,9 +49,9 @@ export default async function JudgeNominationsPage({
 
   if (filters.q) {
     where.OR = [
-      { nomineeName: { contains: filters.q } },
-      { referenceCode: { contains: filters.q.toUpperCase() } },
-      { nomineeOrg: { contains: filters.q } },
+      { nomineeName: { contains: filters.q, mode: "insensitive" } },
+      { referenceCode: { contains: filters.q.toUpperCase(), mode: "insensitive" } },
+      { nomineeOrg: { contains: filters.q, mode: "insensitive" } },
     ];
   }
 

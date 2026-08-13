@@ -8,7 +8,7 @@ import Markdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR — revalidate every hour
 
 type Params = { slug: string };
 

@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
           : []),
       ]);
 
-      await audit(guard.user.id, "nomination.bulk_status_change", "nomination", null, {
+      await audit(guard.user.id, "nomination.bulk_status_change", "nomination", undefined, {
         count: updateResult.count,
         from_statuses: changes.map((c) => c.status),
         to: status,

@@ -28,9 +28,9 @@ export default async function AdminRegistrationsPage({
   if (filters.ticketType) where.ticketType = filters.ticketType;
   if (filters.q) {
     where.OR = [
-      { fullName: { contains: filters.q } },
-      { email: { contains: filters.q } },
-      { referenceCode: { contains: filters.q.toUpperCase() } },
+      { fullName: { contains: filters.q, mode: "insensitive" } },
+      { email: { contains: filters.q, mode: "insensitive" } },
+      { referenceCode: { contains: filters.q.toUpperCase(), mode: "insensitive" } },
     ];
   }
 

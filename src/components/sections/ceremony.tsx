@@ -129,7 +129,7 @@ export function CeremonySection() {
                   You&apos;re registered.
                 </h3>
                 <p className="mt-3 text-muted-foreground">
-                  We&apos;ve sent your confirmation and venue details to {form.email}.
+                  Your reference code is below — save it for your records. We&apos;ll be in touch with venue details as the ceremony approaches.
                 </p>
                 <div className="mt-5 inline-flex flex-col items-center gap-1 px-6 py-3 rounded-xl border border-forest/30 bg-forest/10">
                   <span className="text-xs uppercase tracking-[0.22em] text-forest-light font-semibold">

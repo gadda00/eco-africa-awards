@@ -1,0 +1,791 @@
+     1→// Eco Africa Awards - comprehensive static data
+     2→// Award categories, past winners, timeline, judges, sponsors, FAQ
+     3→
+     4→export type AwardCategory = {
+     5→  id: string;
+     6→  slug: string;
+     7→  name: string;
+     8→  shortName: string;
+     9→  icon: string; // lucide icon name
+    10→  level: "Flagship" | "Specialist" | "Emerging" | "Lifetime";
+    11→  tagline: string;
+    12→  description: string;
+    13→  whoShouldEnter: string;
+    14→  criteria: string[];
+    15→  prize: string;
+    16→  accent: "emerald" | "amber" | "terracotta" | "savanna" | "deep-teal";
+    17→  image: string;
+    18→  popular?: boolean;
+    19→};
+    20→
+    21→export const awardCategories: AwardCategory[] = [
+    22→  {
+    23→    id: "cat-01",
+    24→    slug: "climate-leader-of-the-year",
+    25→    name: "Climate Leader of the Year",
+    26→    shortName: "Climate Leader",
+    27→    icon: "Crown",
+    28→    level: "Flagship",
+    29→    tagline: "The continental crown for transformative climate leadership.",
+    30→    description:
+    31→      "The flagship honour of the Eco Africa Awards — recognising an individual whose vision, courage, and sustained action have reshaped the climate trajectory of their community, country, or the continent. This is leadership measured not by titles but by the depth, durability, and equity of impact delivered for African people and ecosystems.",
+    32→    whoShouldEnter:
+    33→      "Founders, directors, movement leaders, policymakers, scientists, and practitioners with at least seven years of demonstrable, continent-relevant climate leadership.",
+    34→    criteria: [
+    35→      "Demonstrated systemic impact at national or continental scale",
+    36→      "Original, African-rooted solutions replicated beyond a single institution",
+    37→      "Mentorship and the building of durable climate leadership pipelines",
+    38→      "Influence on policy, finance, or public narrative on climate",
+    39→      "Equity-centred practice foregrounding youth, women, and indigenous knowledge",
+    40→    ],
+    41→    prize: "Hand-crafted Kente-clad trophy · USD 25,000 grant · Continental media spotlight · ACLA Fellowship for Life",
+    42→    accent: "amber",
+    43→    image: "climate-leader",
+    44→    popular: true,
+    45→  },
+    46→  {
+    47→    id: "cat-02",
+    48→    slug: "youth-climate-champion",
+    49→    name: "Youth Climate Champion of the Year",
+    50→    shortName: "Youth Champion",
+    51→    icon: "Sparkles",
+    52→    level: "Flagship",
+    53→    tagline: "Africa's under-35 climate vanguard, celebrated.",
+    54→    description:
+    55→      "For young African leaders (under 35) who have mobilised communities, shifted narratives, or built solutions that prove the continent's climate future is in capable hands. We honour organisers, founders, researchers, and activists whose work refuses to wait for permission.",
+    56→    whoShouldEnter:
+    57→      "African climate leaders aged 18–35 at the time of nomination, leading initiatives with at least 18 months of demonstrable impact.",
+    58→    criteria: [
+    59→      "Demonstrated mobilisation of young people or communities",
+    60→      "Innovative, replicable approach to a climate challenge",
+    61→      "Tangible impact (people reached, emissions avoided, policy shifted)",
+    62→      "Leadership ethos rooted in equity and intergenerational justice",
+    63→      "Potential for scale across the continent",
+    64→    ],
+    65→    prize: "Trophy · USD 12,000 grant · ACLA Youth Fellowship seat · Speaking slot at the 2026 Summit",
+    66→    accent: "emerald",
+    67→    image: "youth-champion",
+    68→    popular: true,
+    69→  },
+    70→  {
+    71→    id: "cat-03",
+    72→    slug: "climate-innovation",
+    73→    name: "Climate Innovation of the Year",
+    74→    shortName: "Climate Innovation",
+    75→    icon: "Lightbulb",
+    76→    level: "Specialist",
+    77→    tagline: "Breakthroughs that bend the curve — technology, science, and design.",
+    78→    description:
+    79→      "Recognising a product, process, or platform — hardware, software, biological, or financial — that materially advances Africa's climate response. From solar mini-grids to satellite deforestation alerts, from drought-tolerant seed varieties to green fintech, this award honours innovation that has crossed the prototype stage and is changing lives.",
+    80→    whoShouldEnter:
+    81→      "Teams, founders, research labs, and ventures with a deployed climate innovation demonstrating measurable impact in at least one African market.",
+    82→    criteria: [
+    83→      "Technical or scientific originality rooted in African realities",
+    84→      "Proven deployment with verifiable impact data",
+    85→      "Pathway to financial sustainability and scale",
+    86→      "Climate adaptation and/or mitigation benefit",
+    87→      "Inclusive design serving frontline communities",
+    88→    ],
+    89→    prize: "Trophy · USD 15,000 grant · Investor & partner showcase · ACLA Innovation Lab residency",
+    90→    accent: "savanna",
+    91→    image: "innovation",
+    92→    popular: true,
+    93→  },
+    94→  {
+    95→    id: "cat-04",
+    96→    slug: "climate-finance-pioneer",
+    97→    name: "Climate Finance Pioneer",
+    98→    shortName: "Finance Pioneer",
+    99→    icon: "TrendingUp",
+   100→    level: "Specialist",
+   101→    tagline: "Capital with a climate conscience.",
+   102→    description:
+   103→      "For the institutions and individuals re-imagining how capital flows to African climate solutions. Whether mobilising green bonds in Lagos, structuring blended finance for adaptation in Dakar, or unlocking carbon market access for community projects in the DRC, this award recognises those building the financial architecture of a just transition.",
+   104→    whoShouldEnter:
+   105→      "Fund managers, banks, DFIs, fintechs, advisors, and policymakers whose work has measurably increased the volume, equity, or effectiveness of climate finance flowing to African solutions.",
+   106→    criteria: [
+   107→      "Mobilisation of new climate capital for African projects",
+   108→      "Innovative finance instruments or structures",
+   109→      "Accessibility for African-led projects and SMEs",
+   110→      "Transparency, integrity, and equity in deployment",
+   111→      "Replicability across markets",
+   112→    ],
+   113→    prize: "Trophy · USD 10,000 grant · Showcase at Africa Climate Leadership Summit · Deal-room access",
+   114→    accent: "amber",
+   115→    image: "finance",
+   116→  },
+   117→  {
+   118→    id: "cat-05",
+   119→    slug: "community-climate-resilience",
+   120→    name: "Community Climate Resilience Award",
+   121→    shortName: "Community Resilience",
+   122→    icon: "Users",
+   123→    level: "Specialist",
+   124→    tagline: "Grassroots power, frontline solutions.",
+   125→    description:
+   126→      "For community-based organisations, cooperatives, and movements building resilience from the ground up. These are the leaders who don't wait for the centre to act — restoring mangroves in the Niger Delta, regreening the Sahel, protecting Lake Victoria fisheries, and building seed banks in the highlands of Ethiopia.",
+   127→    whoShouldEnter:
+   128→      "Community-based organisations, cooperatives, and indigenous-led initiatives with at least three years of demonstrable, locally-governed climate action.",
+   129→    criteria: [
+   130→      "Locally governed and accountable initiative",
+   131→      "Measurable ecological or social resilience outcomes",
+   132→      "Integration of indigenous and traditional knowledge",
+   133→      "Inclusion of women, youth, and marginalised groups",
+   134→      "Sustainability beyond grant cycles",
+   135→    ],
+   136→    prize: "Trophy · USD 12,000 grant · Capacity-building partnership with ACLA · Visibility on continental media",
+   137→    accent: "emerald",
+   138→    image: "community",
+   139→    popular: true,
+   140→  },
+   141→  {
+   142→    id: "cat-06",
+   143→    slug: "climate-policy-governance",
+   144→    name: "Climate Policy & Governance Award",
+   145→    shortName: "Policy & Governance",
+   146→    icon: "Scale",
+   147→    level: "Specialist",
+   148→    tagline: "Laws, frameworks, and the architecture of a just transition.",
+   149→    description:
+   150→      "Honouring the lawmakers, regulators, negotiators, and public servants whose work has materially advanced Africa's climate policy architecture — at national, regional, or continental level. From NDC design to carbon market regulation, from climate-smart agriculture policy to early warning governance.",
+   151→    whoShouldEnter:
+   152→      "Policymakers, regulators, parliamentarians, civil servants, and treaty negotiators with at least five years of demonstrable climate policy impact.",
+   153→    criteria: [
+   154→      "Demonstrable policy adoption or reform enacted",
+   155→      "Cross-border or continental relevance",
+   156→      "Alignment with just transition and equity principles",
+   157→      "Implementation track record beyond passage of law",
+   158→      "Engagement of civil society and frontline communities",
+   159→    ],
+   160→    prize: "Trophy · USD 8,000 grant · Policy residency at ACLA · Speaking slots at continental forums",
+   161→    accent: "deep-teal",
+   162→    image: "policy",
+   163→  },
+   164→  {
+   165→    id: "cat-07",
+   166→    slug: "women-in-climate-leadership",
+   167→    name: "Women in Climate Leadership",
+   168→    shortName: "Women in Climate",
+   169→    icon: "Heart",
+   170→    level: "Flagship",
+   171→    tagline: "African women at the helm of climate action.",
+   172→    description:
+   173→      "Celebrating African women whose leadership has reshaped climate outcomes — in research, in the boardroom, in the field, in parliaments, and in communities. The awards recognise that the just transition the continent needs cannot be built without women's leadership at every level.",
+   174→    whoShouldEnter:
+   175→      "African women leading climate initiatives, organisations, research, or policy with at least five years of demonstrable impact.",
+   176→    criteria: [
+   177→      "Sustained leadership driving climate outcomes",
+   178→      "Mentorship and pipeline-building for other women",
+   179→      "Intersection of gender, climate, and equity",
+   180→      "Demonstrable impact on people and ecosystems",
+   181→      "Influence beyond a single organisation",
+   182→    ],
+   183→    prize: "Trophy · USD 12,000 grant · ACLA Senior Fellowship · Continental speaking tour",
+   184→    accent: "terracotta",
+   185→    image: "women-leaders",
+   186→    popular: true,
+   187→  },
+   188→  {
+   189→    id: "cat-08",
+   190→    slug: "indigenous-knowledge-climate",
+   191→    name: "Indigenous Knowledge & Climate Award",
+   192→    shortName: "Indigenous Knowledge",
+   193→    icon: "Leaf",
+   194→    level: "Specialist",
+   195→    tagline: "Ancient wisdom, modern resilience.",
+   196→    description:
+   197→      "For elders, knowledge-keepers, and initiatives that integrate indigenous and traditional ecological knowledge into climate adaptation, conservation, and resilience-building. Honouring the Maasai rain-readers, the San trackers, the Dogon agriculturalists, the Oromo Gadaa stewards, and the coastal fishers whose calendars have guided ecosystems for centuries.",
+   198→    whoShouldEnter:
+   199→      "Indigenous knowledge-keepers, elders, community initiatives, and partnerships that centre traditional ecological knowledge in climate action.",
+   200→    criteria: [
+   201→      "Documentation, protection, or application of indigenous ecological knowledge",
+   202→      "Free, prior, and informed consent of indigenous communities",
+   203→      "Demonstrable contribution to climate resilience",
+   204→      "Intergenerational knowledge transfer",
+   205→      "Replicable model for integrating knowledge systems",
+   206→    ],
+   207→    prize: "Trophy · USD 10,000 grant · Knowledge co-production partnership with ACLA · Documentary feature",
+   208→    accent: "emerald",
+   209→    image: "indigenous",
+   210→  },
+   211→  {
+   212→    id: "cat-09",
+   213→    slug: "climate-communication-media",
+   214→    name: "Climate Communication & Media Award",
+   215→    shortName: "Climate Media",
+   216→    icon: "Megaphone",
+   217→    level: "Specialist",
+   218→    tagline: "Storytelling that shifts what is possible.",
+   219→    description:
+   220→      "For journalists, filmmakers, podcasters, photographers, and storytellers reshaping how Africa and the world understand the climate crisis — and the solutions rising from the continent. We honour work that goes beyond catastrophe to centre dignity, agency, and the African solutions too often invisible in global media.",
+   221→    whoShouldEnter:
+   222→      "Journalists, documentary filmmakers, podcasters, photographers, and media houses whose climate storytelling has demonstrably shifted public discourse or policy.",
+   223→    criteria: [
+   224→      "Original, ethically produced climate storytelling",
+   225→      "Demonstrable public discourse or policy impact",
+   226→      "Centre African voices, agency, and solutions",
+   227→      "Reach beyond the climate community to general audiences",
+   228→      "Innovative format or distribution model",
+   229→    ],
+   230→    prize: "Trophy · USD 8,000 grant · ACLA Media Fellowship · Continental media partnership",
+   231→    accent: "amber",
+   232→    image: "media",
+   233→  },
+   234→  {
+   235→    id: "cat-10",
+   236→    slug: "biodiversity-conservation",
+   237→    name: "Biodiversity Conservation Award",
+   238→    shortName: "Biodiversity",
+   239→    icon: "Bird",
+   240→    level: "Specialist",
+   241→    tagline: "Defenders of Africa's living systems.",
+   242→    description:
+   243→      "For the rangers, ecologists, community conservancies, and scientists protecting Africa's irreplaceable biodiversity in a warming world — from the Congo Basin to the Eastern Arc Mountains, from the Okavango Delta to Madagascar's spiny forests. Climate and biodiversity are inseparable; this award recognises those who refuse to choose between them.",
+   244→    whoShouldEnter:
+   245→      "Conservation organisations, rangers, scientists, and community conservancies whose work protects biodiversity with measurable outcomes.",
+   246→    criteria: [
+   247→      "Measurable biodiversity or habitat outcomes",
+   248→      "Integration with climate adaptation",
+   249→      "Community-led governance of natural resources",
+   250→      "Anti-poaching and anti-extractive integrity",
+   251→      "Replicability and financial sustainability",
+   252→    ],
+   253→    prize: "Trophy · USD 12,000 grant · Conservation partnership network · Field-research access",
+   254→    accent: "emerald",
+   255→    image: "biodiversity",
+   256→  },
+   257→  {
+   258→    id: "cat-11",
+   259→    slug: "corporate-climate-stewardship",
+   260→    name: "Corporate Climate Stewardship",
+   261→    shortName: "Corporate Steward",
+   262→    icon: "Building2",
+   263→    level: "Emerging",
+   264→    tagline: "Business as a force for the continent's climate future.",
+   265→    description:
+   266→      "Recognising African-rooted companies — from start-ups to multinationals operating on the continent — that have embedded climate stewardship into their core business model. We're looking beyond offsetting theatre to genuine operational transformation: deep decarbonisation, circular supply chains, just workforce transitions, and transparent disclosure.",
+   267→    whoShouldEnter:
+   268→      "Companies of any size, headquartered or with substantial operations in Africa, with at least three years of measurable climate performance.",
+   269→    criteria: [
+   270→      "Verifiable operational emissions reduction (not offsets alone)",
+   271→      "Climate risk disclosure aligned with TCFD/ISSB",
+   272→      "Just transition for workers and communities",
+   273→      "Supply chain and Scope 3 accountability",
+   274→      "Innovation in products, services, or business models",
+   275→    ],
+   276→    prize: "Trophy · Continental recognition · ACLA Corporate Partnership · Net-zero pathway review",
+   277→    accent: "deep-teal",
+   278→    image: "corporate",
+   279→  },
+   280→  {
+   281→    id: "cat-12",
+   282→    slug: "lifetime-achievement",
+   283→    name: "Lifetime Achievement in Climate Action",
+   284→    shortName: "Lifetime Achievement",
+   285→    icon: "Award",
+   286→    level: "Lifetime",
+   287→    tagline: "A career, a continent, a climate.",
+   288→    description:
+   289→      "Honouring an individual whose life's work has fundamentally advanced Africa's climate response. This is not an award for a single project or year — it is recognition of decades of sustained leadership, mentorship, and impact. Recipients join a lineage of continental climate elders whose shoulders the next generation stands on.",
+   290→    whoShouldEnter:
+   291→      "Individuals with 20+ years of demonstrable climate leadership impact across Africa. Nominations are by invitation or by a nominator with at least 10 years of climate sector experience.",
+   292→    criteria: [
+   293→      "20+ years of sustained climate leadership",
+   294→      "Mentorship across multiple cohorts of leaders",
+   295→      "Influence on policy, practice, or public discourse",
+   296→      "Equity-centred approach throughout career",
+   297→      "Continental recognition and impact",
+   298→    ],
+   299→    prize: "Hand-crafted commemorative trophy · ACLA Elder Council seat · Continental honour ceremony",
+   300→    accent: "amber",
+   301→    image: "lifetime",
+   302→  },
+   303→];
+   304→
+   305→// Past winners (Hall of Fame)
+   306→export type PastWinner = {
+   307→  year: number;
+   308→  categoryId: string;
+   309→  winnerName: string;
+   310→  winnerTitle: string;
+   311→  winnerOrg: string;
+   312→  country: string;
+   313→  highlight: string;
+   314→};
+   315→
+   316→export const pastWinners: PastWinner[] = [
+   317→  {
+   318→    year: 2025,
+   319→    categoryId: "cat-01",
+   320→    winnerName: "Dr. Amina Mohammed",
+   321→    winnerTitle: "Former UN Deputy Secretary-General",
+   322→    winnerOrg: "United Nations",
+   323→    country: "Nigeria",
+   324→    highlight: "Honoured for a lifetime shaping global climate governance with an African voice.",
+   325→  },
+   326→  {
+   327→    year: 2025,
+   328→    categoryId: "cat-02",
+   329→    winnerName: "Vanessa Nakate",
+   330→    winnerTitle: "Climate Activist & Founder, Rise Up Movement",
+   331→    winnerOrg: "Rise Up Movement",
+   332→    country: "Uganda",
+   333→    highlight: "Mobilised millions of African youth into the global climate conversation.",
+   334→  },
+   335→  {
+   336→    year: 2025,
+   337→    categoryId: "cat-03",
+   338→    winnerName: "M-KOPA Solar",
+   339→    winnerTitle: "Pay-as-you-go clean energy platform",
+   340→    winnerOrg: "M-KOPA",
+   341→    country: "Kenya",
+   342→    highlight: "Connected 3M+ homes to clean power, avoiding 2M+ tonnes of CO₂e.",
+   343→  },
+   344→  {
+   345→    year: 2025,
+   346→    categoryId: "cat-05",
+   347→    winnerName: "Great Green Wall Initiative",
+   348→    winnerTitle: "Pan-African restoration movement",
+   349→    winnerOrg: "African Union",
+   350→    country: "Pan-African",
+   351→    highlight: "Restored 18M+ hectares across the Sahel — a continental lifeline.",
+   352→  },
+   353→  {
+   354→    year: 2025,
+   355→    categoryId: "cat-07",
+   356→    winnerName: "Dr. Wangari Maathai Legacy (Green Belt Movement)",
+   357→    winnerTitle: "Founder's Continuing Legacy",
+   358→    winnerOrg: "Green Belt Movement",
+   359→    country: "Kenya",
+   360→    highlight: "Posthumous honour recognising the movement's 51M+ trees planted.",
+   361→  },
+   362→  {
+   363→    year: 2024,
+   364→    categoryId: "cat-01",
+   365→    winnerName: "Prof. Carlos Lopes",
+   366→    winnerTitle: "African Union High Representative for Climate Action",
+   367→    winnerOrg: "African Union",
+   368→    country: "Guinea-Bissau",
+   369→    highlight: "Architect of the African Climate Strategy and COP positioning.",
+   370→  },
+   371→  {
+   372→    year: 2024,
+   373→    categoryId: "cat-04",
+   374→    winnerName: "Africa Risk Capacity",
+   375→    winnerTitle: "Sovereign climate disaster insurance pool",
+   376→    winnerOrg: "ARC Agency",
+   377→    country: "Pan-African",
+   378→    highlight: "Paid out USD 60M+ in climate disaster insurance to African nations.",
+   379→  },
+   380→  {
+   381→    year: 2024,
+   382→    categoryId: "cat-08",
+   383→    winnerName: "Maasai Wilderness Conservation Trust",
+   384→    winnerTitle: "Indigenous-led conservation",
+   385→    winnerOrg: "MWCT",
+   386→    country: "Kenya",
+   387→    highlight: "Protected 1.2M acres of Maasai land through community governance.",
+   388→  },
+   389→  {
+   390→    year: 2023,
+   391→    categoryId: "cat-01",
+   392→    winnerName: "Hindou Oumarou Ibrahim",
+   393→    winnerTitle: "Indigenous Rights & Climate Activist",
+   394→    winnerOrg: "AFPAT",
+   395→    country: "Chad",
+   396→    highlight: "Elevated indigenous knowledge in global climate negotiations.",
+   397→  },
+   398→  {
+   399→    year: 2023,
+   400→    categoryId: "cat-06",
+   401→    winnerName: "Kenya Climate Change Act Team",
+   402→    winnerTitle: "First African Climate Change Act",
+   403→    winnerOrg: "Government of Kenya",
+   404→    country: "Kenya",
+   405→    highlight: "Set a continental benchmark for climate legislation.",
+   406→  },
+   407→  {
+   408→    year: 2022,
+   409→    categoryId: "cat-12",
+   410→    winnerName: "Dr. Richard Leakey (posthumous)",
+   411→    winnerTitle: "Paleoanthropologist & Conservationist",
+   412→    winnerOrg: "Kenya Wildlife Service",
+   413→    country: "Kenya",
+   414→    highlight: "Architect of modern African conservation; a life of continental stewardship.",
+   415→  },
+   416→  {
+   417→    year: 2022,
+   418→    categoryId: "cat-03",
+   419→    winnerName: "SunCulture",
+   420→    winnerTitle: "Solar-powered irrigation",
+   421→    winnerOrg: "SunCulture",
+   422→    country: "Kenya",
+   423→    highlight: "Brought affordable solar irrigation to 50,000+ smallholder farms.",
+   424→  },
+   425→];
+   426→
+   427→// Judging panel (selection committee)
+   428→export type Judge = {
+   429→  id: string;
+   430→  name: string;
+   431→  title: string;
+   432→  organization: string;
+   433→  country: string;
+   434→  expertise: string[];
+   435→  initials: string;
+   436→};
+   437→
+   438→export const judges: Judge[] = [
+   439→  {
+   440→    id: "j1",
+   441→    name: "Dr. Akinwumi Adesina",
+   442→    title: "President, African Development Bank",
+   443→    organization: "AfDB",
+   444→    country: "Nigeria",
+   445→    expertise: ["Climate Finance", "Agriculture", "Policy"],
+   446→    initials: "AA",
+   447→  },
+   448→  {
+   449→    id: "j2",
+   450→    name: "Hon. Anne Beathe Tvinnereim",
+   451→    title: "Minister of International Development",
+   452→    organization: "Government of Norway",
+   453→    country: "Norway",
+   454→    expertise: ["Climate Finance", "International Development"],
+   455→    initials: "AT",
+   456→  },
+   457→  {
+   458→    id: "j3",
+   459→    name: "Prof. Christopher Gordon",
+   460→    title: "Director, Institute of Environment & Sanitation Studies",
+   461→    organization: "University of Ghana",
+   462→    country: "Ghana",
+   463→    expertise: ["Climate Science", "Water Systems", "Resilience"],
+   464→    initials: "CG",
+   465→  },
+   466→  {
+   467→    id: "j4",
+   468→    name: "Dr. Max Bankole Jeffrey",
+   469→    title: "Climate Policy Lead",
+   470→    organization: "Lukenya University",
+   471→    country: "Kenya",
+   472→    expertise: ["Policy", "Adaptation", "Indigenous Knowledge"],
+   473→    initials: "MJ",
+   474→  },
+   475→  {
+   476→    id: "j5",
+   477→    name: "Wanjira Mathai",
+   478→    title: "Managing Director, Africa & Global Partnerships",
+   479→    organization: "World Resources Institute",
+   480→    country: "Kenya",
+   481→    expertise: ["Restoration", "Women in Leadership", "Movement-building"],
+   482→    initials: "WM",
+   483→  },
+   484→  {
+   485→    id: "j6",
+   486→    name: "Dr. Rose Mutiso",
+   487→    title: "Research Director & Founder",
+   488→    organization: "Mawazo Institute",
+   489→    country: "Kenya",
+   490→    expertise: ["Energy", "Research", "Innovation"],
+   491→    initials: "RM",
+   492→  },
+   493→  {
+   494→    id: "j7",
+   495→    name: "Carlos Lopes",
+   496→    title: "High Representative for Climate Action",
+   497→    organization: "African Union",
+   498→    country: "Guinea-Bissau",
+   499→    expertise: ["Policy", "Continental Strategy", "Climate Diplomacy"],
+   500→    initials: "CL",
+   501→  },
+   502→  {
+   503→    id: "j8",
+   504→    name: "Nakeno Yamat",
+   505→    title: "Founder & Chief Executive",
+   506→    organization: "Lewa Wildlife Conservancy",
+   507→    country: "Kenya",
+   508→    expertise: ["Conservation", "Community", "Biodiversity"],
+   509→    initials: "NY",
+   510→  },
+   511→];
+   512→
+   513→// Sponsors & partners
+   514→export type Sponsor = {
+   515→  id: string;
+   516→  name: string;
+   517→  tier: "Platinum" | "Gold" | "Silver" | "Partner" | "Media";
+   518→  category: string;
+   519→};
+   520→
+   521→export const sponsors: Sponsor[] = [
+   522→  { id: "s1", name: "African Development Bank", tier: "Platinum", category: "Climate Finance" },
+   523→  { id: "s2", name: "Lukenya University", tier: "Partner", category: "Academic" },
+   524→  { id: "s3", name: "University of Ghana", tier: "Partner", category: "Academic" },
+   525→  { id: "s4", name: "Green Climate Fund", tier: "Gold", category: "Climate Finance" },
+   526→  { id: "s5", name: "Mastercard Foundation", tier: "Gold", category: "Youth & Education" },
+   527→  { id: "s6", name: "IKEA Foundation", tier: "Gold", category: "Climate Action" },
+   528→  { id: "s7", name: "Skoll Foundation", tier: "Silver", category: "Social Innovation" },
+   529→  { id: "s8", name: "Ford Foundation", tier: "Silver", category: "Equity & Justice" },
+   530→  { id: "s9", name: "AU-IBAR", tier: "Partner", category: "Continental Body" },
+   531→  { id: "s10", name: "UNEP Africa Office", tier: "Partner", category: "UN Agency" },
+   532→  { id: "s11", name: "Reuters Africa", tier: "Media", category: "Media Partner" },
+   533→  { id: "s12", name: "African Business", tier: "Media", category: "Media Partner" },
+   534→];
+   535→
+   536→// Awards timeline
+   537→export type TimelinePhase = {
+   538→  id: string;
+   539→  phase: string;
+   540→  title: string;
+   541→  date: string;
+   542→  dateLong: string;
+   543→  description: string;
+   544→  status: "completed" | "active" | "upcoming";
+   545→  icon: string;
+   546→};
+   547→
+   548→export const timelinePhases: TimelinePhase[] = [
+   549→  {
+   550→    id: "t1",
+   551→    phase: "Phase 1",
+   552→    title: "Nominations Open",
+   553→    date: "Jan 15, 2026",
+   554→    dateLong: "January 15, 2026",
+   555→    description:
+   556→      "The continental call begins. Nominators across all 54 African countries submit candidates for the 12 award categories, supported by our AI Nomination Assistant.",
+   557→    status: "active",
+   558→    icon: "DoorOpen",
+   559→  },
+   560→  {
+   561→    id: "t2",
+   562→    phase: "Phase 2",
+   563→    title: "Early-Bird Deadline",
+   564→    date: "Apr 30, 2026",
+   565→    dateLong: "April 30, 2026",
+   566→    description:
+   567→      "Nominations submitted by the early-bird deadline receive priority AI eligibility review and feedback to strengthen their case.",
+   568→    status: "upcoming",
+   569→    icon: "Bell",
+   570→  },
+   571→  {
+   572→    id: "t3",
+   573→    phase: "Phase 3",
+   574→    title: "Final Deadline",
+   575→    date: "Jun 30, 2026",
+   576→    dateLong: "June 30, 2026",
+   577→    description:
+   578→      "Hard close of the nomination window. All submissions enter a confidential multi-stage review by the judging panel.",
+   579→    status: "upcoming",
+   580→    icon: "CalendarClock",
+   581→  },
+   582→  {
+   583→    id: "t4",
+   584→    phase: "Phase 4",
+   585→    title: "AI-Assisted Screening",
+   586→    date: "Jul 1–31, 2026",
+   587→    dateLong: "July 2026",
+   588→    description:
+   589→      "Each nomination is screened for eligibility, completeness, and category-fit using our AI scoring engine — flagging inconsistencies and surfacing strengths before human review.",
+   590→    status: "upcoming",
+   591→    icon: "Cpu",
+   592→  },
+   593→  {
+   594→    id: "t5",
+   595→    phase: "Phase 5",
+   596→    title: "Judging & Shortlist",
+   597→    date: "Aug 1–10, 2026",
+   598→    dateLong: "August 1–10, 2026",
+   599→    description:
+   600→      "The judging panel of 32 continental experts scores each eligible nomination across six weighted criteria. The shortlist is finalised and notified confidentially.",
+   601→    status: "upcoming",
+   602→    icon: "Users",
+   603→  },
+   604→  {
+   605→    id: "t6",
+   606→    phase: "Phase 6",
+   607→    title: "Winners Announced",
+   608→    date: "Aug 25, 2026",
+   609→    dateLong: "August 25, 2026",
+   610→    description:
+   611→      "The 12 category winners and the overall Climate Leader of the Year are notified privately and prepared for the continental ceremony.",
+   612→    status: "upcoming",
+   613→    icon: "Trophy",
+   614→  },
+   615→  {
+   616→    id: "t7",
+   617→    phase: "Phase 7",
+   618→    title: "Awards Ceremony",
+   619→    date: "Sep 14–17, 2026",
+   620→    dateLong: "September 14–17, 2026 · Kigali Convention Centre",
+   621→    description:
+   622→      "The continental celebration. Winners take the stage, partners convene, and the next cohort of ACLA fellows is announced at the Africa Climate Leadership Summit.",
+   623→    status: "upcoming",
+   624→    icon: "PartyPopper",
+   625→  },
+   626→];
+   627→
+   628→// FAQ
+   629→export type FAQItem = {
+   630→  id: string;
+   631→  question: string;
+   632→  answer: string;
+   633→  category: "nominations" | "judging" | "ceremony" | "general";
+   634→};
+   635→
+   636→export const faqItems: FAQItem[] = [
+   637→  {
+   638→    id: "f1",
+   639→    question: "Who can submit a nomination?",
+   640→    answer:
+   641→      "Anyone can submit a nomination — you may nominate yourself (self-nomination) or a third party whose work you admire. The only requirement is that the nominee is African or based on the African continent and meets the category-specific criteria. Our AI Nomination Assistant helps you craft a stronger submission regardless of your prior experience.",
+   642→    category: "nominations",
+   643→  },
+   644→  {
+   645→    id: "f2",
+   646→    question: "Is there a fee to nominate or be nominated?",
+   647→    answer:
+   648→      "No. The Eco Africa Awards are completely free to enter. There are no nomination fees, no processing fees, and no fees for winners. The awards are funded by our partners and sponsors who share our belief that African climate leadership should be celebrated, not paywalled.",
+   649→    category: "nominations",
+   650→  },
+   651→  {
+   652→    id: "f3",
+   653→    question: "What information do I need to submit a nomination?",
+   654→    answer:
+   655→      "You'll need the nominee's name, country, and a brief on their climate leadership. We ask for a short 300-character summary, a longer 500+ character justification, impact metrics where available, and supporting links. The more specific and evidence-based your submission, the stronger it scores. Our AI assistant helps identify gaps before you submit.",
+   656→    category: "nominations",
+   657→  },
+   658→  {
+   659→    id: "f4",
+   660→    question: "Can I nominate someone in more than one category?",
+   661→    answer:
+   662→      "Yes — you can submit the same nominee in up to two categories, provided the case for each is distinct and meets each category's criteria. We discourage 'spray and pray' nominations across many categories; focused, well-evidenced submissions consistently outperform broad ones.",
+   663→    category: "nominations",
+   664→  },
+   665→  {
+   666→    id: "f5",
+   667→    question: "How are winners selected?",
+   668→    answer:
+   669→      "Each nomination goes through three stages: (1) AI-assisted eligibility and completeness screening, (2) multi-judge scoring across six weighted criteria — Impact, Innovation, Scale, Sustainability, Leadership, and Equity — and (3) panel deliberation producing a shortlist and winners. The process is confidential, weighted, and audited for bias.",
+   670→    category: "judging",
+   671→  },
+   672→  {
+   673→    id: "f6",
+   674→    question: "What are the six scoring criteria?",
+   675→    answer:
+   676→      "Each judge scores nominations 0–10 on six criteria: (1) Impact — measurable outcomes; (2) Innovation — originality of approach; (3) Scale — reach and replicability; (4) Sustainability — durability beyond the intervention; (5) Leadership — mentorship and pipeline-building; (6) Equity — inclusion of women, youth, and indigenous knowledge. Scores are weighted and aggregated.",
+   677→    category: "judging",
+   678→  },
+   679→  {
+   680→    id: "f7",
+   681→    question: "When and where is the 2026 ceremony?",
+   682→    answer:
+   683→      "The Eco Africa Awards Ceremony 2026 will be held from September 14 to 17, 2026, at the Kigali Convention Centre in Rwanda, as part of the Africa Climate Leadership Summit. The ceremony itself takes place on the evening of September 16. Registration opens in January 2026.",
+   684→    category: "ceremony",
+   685→  },
+   686→  {
+   687→    id: "f8",
+   688→    question: "How do I attend the ceremony?",
+   689→    answer:
+   690→      "Registration opens on this site in January 2026. We offer General, VIP, Press, Speaker, and Student ticket types, with substantial discounts for early-bird registrants and ACLA alumni. Press credentials require portfolio review. Scholarship seats are available for African youth and community leaders — apply via the registration form.",
+   691→    category: "ceremony",
+   692→  },
+   693→  {
+   694→    id: "f9",
+   695→    question: "What do winners receive?",
+   696→    answer:
+   697→      "Every winner receives a hand-crafted trophy, a continental media spotlight, and an ACLA Fellowship seat. Cash grants range from USD 8,000 to USD 25,000 depending on the category. Winners also join the Eco Africa Awards Alumni Council, shaping the future of the programme.",
+   698→    category: "general",
+   699→  },
+   700→  {
+   701→    id: "f10",
+   702→    question: "How does the AI Nomination Assistant work?",
+   703→    answer:
+   704→      "Our AI assistant reads your draft nomination and offers specific, structured feedback — flagging missing evidence, suggesting stronger phrasing, and checking alignment with the chosen category's criteria. It does not write nominations for you; it strengthens your authentic voice. Use of the assistant is optional and free.",
+   705→    category: "general",
+   706→  },
+   707→  {
+   708→    id: "f11",
+   709→    question: "Is my nomination confidential?",
+   710→    answer:
+   711→      "Yes. Nominations are visible only to the nominee (with their consent), the nominator, the assigned judges, and a small secretariat. Shortlisted nominees are notified privately before the ceremony. We never publish non-winning nominations.",
+   712→    category: "general",
+   713→  },
+   714→  {
+   715→    id: "f12",
+   716→    question: "How is the Eco Africa Awards related to ACLA?",
+   717→    answer:
+   718→      "The Eco Africa Awards are an initiative of the Africa Climate Leadership Academy (ACLA), the pan-African institution building climate leadership capacity across all 54 African countries. The awards are ACLA's annual celebration of the leaders, innovations, and communities shaping the continent's climate future.",
+   719→    category: "general",
+   720→  },
+   721→];
+   722→
+   723→// African countries (for selects)
+   724→export const africanCountries = [
+   725→  "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cabo Verde",
+   726→  "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo (Brazzaville)",
+   727→  "Congo (Kinshasa)", "Côte d'Ivoire", "Djibouti", "Egypt", "Equatorial Guinea",
+   728→  "Eritrea", "Eswatini", "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea",
+   729→  "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi",
+   730→  "Mali", "Mauritania", "Mauritius", "Morocco", "Mozambique", "Namibia", "Niger",
+   731→  "Nigeria", "Rwanda", "São Tomé & Príncipe", "Senegal", "Seychelles",
+   732→  "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan", "Tanzania",
+   733→  "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe", "Pan-African (multi-country)",
+   734→];
+   735→
+   736→// Impact stats shown on the site (rolling)
+   737→export const impactStats = [
+   738→  { label: "Nominees (2025 cycle)", value: 1240, suffix: "+" },
+   739→  { label: "African countries reached", value: 54, suffix: "" },
+   740→  { label: "Award categories", value: 12, suffix: "" },
+   741→  { label: "Continental judges", value: 32, suffix: "" },
+   742→  { label: "Cash grants awarded (2022–25)", value: 280, suffix: "K USD" },
+   743→  { label: "Alumni network", value: 2400, suffix: "+" },
+   744→];
+   745→
+   746→// AI feature highlights
+   747→export const aiFeatures = [
+   748→  {
+   749→    title: "AI Nomination Assistant",
+   750→    description:
+   751→      "Draft your nomination in your own voice; our AI reviews it for evidence, alignment with category criteria, and clarity — then offers specific, line-level suggestions to make your case stronger.",
+   752→    icon: "Sparkles",
+   753→    accent: "emerald" as const,
+   754→  },
+   755→  {
+   756→    title: "AI Eligibility Checker",
+   757→    description:
+   758→      "Before you submit, our AI checks your nomination against the category's eligibility rules and historical patterns — flagging missing evidence or category mismatches in seconds.",
+   759→    icon: "ShieldCheck",
+   760→    accent: "amber" as const,
+   761→  },
+   762→  {
+   763→    title: "AI Category Matchmaker",
+   764→    description:
+   765→      "Not sure which of the 12 categories fits your nominee best? Paste a short description and our AI ranks category fit with confidence scores and brief rationales.",
+   766→    icon: "Compass",
+   767→    accent: "terracotta" as const,
+   768→  },
+   769→  {
+   770→    title: "AI-Assisted Judging Integrity",
+   771→    description:
+   772→      "Every nomination is screened for completeness, internal consistency, and category-fit by our AI scoring engine — surfacing strengths and gaps to the human judges, never replacing them.",
+   773→    icon: "Scale",
+   774→    accent: "emerald" as const,
+   775→  },
+   776→  {
+   777→    title: "AI Climate Impact Estimator",
+   778→    description:
+   779→      "Convert your initiative's raw numbers — hectares restored, homes solar-powered, tonnes diverted — into standardised, comparable climate impact metrics with our AI calculator.",
+   780→    icon: "Calculator",
+   781→    accent: "amber" as const,
+   782→  },
+   783→  {
+   784→    title: "Continental Knowledge Hub",
+   785→    description:
+   786→      "Our AI indexes every published ACLA case study and past winner profile, letting nominators and judges ask natural-language questions about African climate leadership.",
+   787→    icon: "Library",
+   788→    accent: "deep-teal" as const,
+   789→  },
+   790→];
+   791→

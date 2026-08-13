@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, MapPin, Building2, Trophy, Quote, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR — revalidate every hour
 
 type Params = { year: string; slug: string };
 

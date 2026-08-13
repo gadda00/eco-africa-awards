@@ -24,10 +24,10 @@ export default async function AdminMessagesPage({
   if (filters.category) where.category = filters.category;
   if (filters.q) {
     where.OR = [
-      { name: { contains: filters.q } },
-      { email: { contains: filters.q } },
-      { subject: { contains: filters.q } },
-      { message: { contains: filters.q } },
+      { name: { contains: filters.q, mode: "insensitive" } },
+      { email: { contains: filters.q, mode: "insensitive" } },
+      { subject: { contains: filters.q, mode: "insensitive" } },
+      { message: { contains: filters.q, mode: "insensitive" } },
     ];
   }
 

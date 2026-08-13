@@ -30,10 +30,10 @@ export default async function AdminNominationsPage({
   if (filters.country) where.nomineeCountry = filters.country;
   if (filters.q) {
     where.OR = [
-      { nomineeName: { contains: filters.q } },
-      { referenceCode: { contains: filters.q.toUpperCase() } },
-      { nomineeOrg: { contains: filters.q } },
-      { nominatorName: { contains: filters.q } },
+      { nomineeName: { contains: filters.q, mode: "insensitive" } },
+      { referenceCode: { contains: filters.q.toUpperCase(), mode: "insensitive" } },
+      { nomineeOrg: { contains: filters.q, mode: "insensitive" } },
+      { nominatorName: { contains: filters.q, mode: "insensitive" } },
     ];
   }
 

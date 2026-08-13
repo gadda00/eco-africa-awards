@@ -10,7 +10,13 @@ import { Input } from "@/components/ui/input";
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") || "/admin";
+  // Validate callbackUrl to prevent open-redirect attacks.
+  // Only allow relative URLs that start with "/" and don't start with "//".
+  const rawCallback = params.get("callbackUrl") || "/admin";
+  const callbackUrl =
+    typeof rawCallback === "string" && rawCallback.startsWith("/") && !rawCallback.startsWith("//")
+      ? rawCallback
+      : "/admin";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

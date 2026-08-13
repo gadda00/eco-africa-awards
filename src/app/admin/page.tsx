@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { CategoryDistributionChart, StatusDistributionChart, TimeSeriesChart } from "@/components/admin/charts";
+import { StatTile } from "@/components/admin/stat-tile";
 
 export const dynamic = "force-dynamic";
 
@@ -214,34 +215,3 @@ export default async function AdminDashboard() {
   );
 }
 
-function StatTile({
-  label, value, icon: Icon, accent, link, trend,
-}: {
-  label: string;
-  value: number;
-  icon: any;
-  accent: "forest" | "gold" | "terracotta" | "savanna";
-  link: string;
-  trend?: string;
-}) {
-  const styles = {
-    forest: { bg: "bg-forest/10", text: "text-forest", ring: "ring-forest/30" },
-    gold: { bg: "bg-gold/15", text: "text-gold", ring: "ring-gold/40" },
-    terracotta: { bg: "bg-terracotta/10", text: "text-terracotta", ring: "ring-terracotta/40" },
-    savanna: { bg: "bg-savanna/25", text: "text-terracotta", ring: "ring-savanna/50" },
-  }[accent];
-
-  return (
-    <Link
-      href={link}
-      className="group rounded-2xl border border-forest/15 bg-card p-5 shadow-warm hover:shadow-warm-lg hover:-translate-y-0.5 transition-all"
-    >
-      <div className={`h-10 w-10 rounded-xl ${styles.bg} ${styles.ring} ring-1 grid place-items-center mb-3`}>
-        <Icon className={`h-5 w-5 ${styles.text}`} />
-      </div>
-      <div className="font-display text-3xl font-bold text-foreground tabular-nums">{value}</div>
-      <div className="text-sm text-muted-foreground mt-0.5">{label}</div>
-      {trend && <div className="text-[10px] text-muted-foreground mt-1">{trend}</div>}
-    </Link>
-  );
-}

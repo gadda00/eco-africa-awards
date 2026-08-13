@@ -66,7 +66,7 @@ const schema = z.object({
   confirmsAfrican: z.boolean().refine((v) => v, "African eligibility confirmation required"),
 });
 
-type NominationForm = z.infer<typeof schema>;
+type NominationForm = z.input<typeof schema>;
 
 type AiFeedback = {
   loading: boolean;
@@ -217,7 +217,6 @@ export function NominateSection() {
                 </div>
                 <p className="mt-5 text-xs text-muted-foreground">
                   Save this code — you&apos;ll need it to follow your nomination&apos;s status.
-                  We&apos;ve also sent a confirmation email.
                 </p>
                 <Button
                   asChild
@@ -685,6 +684,7 @@ export function NominateSection() {
 
                       <div className="space-y-3 pt-2">
                         <ConfirmRow
+                          id="confirm-consent"
                           checked={watch("confirmsConsent")}
                           onCheck={(v) => setValue("confirmsConsent", v, { shouldValidate: true })}
                           error={errors.confirmsConsent?.message}
@@ -693,12 +693,14 @@ export function NominateSection() {
                             : "I confirm that the nominee has consented to this nomination, or that this is a publicly eligible nomination."}
                         />
                         <ConfirmRow
+                          id="confirm-truthful"
                           checked={watch("confirmsTruthful")}
                           onCheck={(v) => setValue("confirmsTruthful", v, { shouldValidate: true })}
                           error={errors.confirmsTruthful?.message}
                           text="I confirm that all information provided is truthful and accurate to the best of my knowledge."
                         />
                         <ConfirmRow
+                          id="confirm-african"
                           checked={watch("confirmsAfrican")}
                           onCheck={(v) => setValue("confirmsAfrican", v, { shouldValidate: true })}
                           error={errors.confirmsAfrican?.message}
@@ -775,7 +777,7 @@ function Field({
         {hint && <span className="text-[10px] text-muted-foreground">{hint}</span>}
       </div>
       {children}
-      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+      {error && <p role="alert" className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }
@@ -796,21 +798,28 @@ function ConfirmRow({
   onCheck,
   text,
   error,
+  id,
 }: {
   checked: boolean;
   onCheck: (v: boolean) => void;
   text: string;
   error?: string;
+  id: string;
 }) {
   return (
     <div>
       <div className="flex items-start gap-3 p-3.5 rounded-xl border border-border/60 bg-muted/30">
-        <Checkbox checked={checked} onCheckedChange={(v) => onCheck(v === true)} />
-        <Label className="text-sm text-foreground leading-snug cursor-pointer flex-1">
+        <Checkbox
+          id={id}
+          checked={checked}
+          onCheckedChange={(v) => onCheck(v === true)}
+          aria-invalid={!!error}
+        />
+        <Label htmlFor={id} className="text-sm text-foreground leading-snug cursor-pointer flex-1">
           {text}
         </Label>
       </div>
-      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+      {error && <p role="alert" className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }

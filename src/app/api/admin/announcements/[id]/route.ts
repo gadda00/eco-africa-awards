@@ -37,7 +37,7 @@ export async function PATCH(
     const prismaUpdate: any = {};
     for (const [k, v] of Object.entries(updates)) {
       if (k === "publishedAt") {
-        prismaUpdate.publishedAt = v ? new Date(v) : null;
+        prismaUpdate.publishedAt = typeof v === "string" ? new Date(v) : null;
       } else if (v !== undefined) {
         prismaUpdate[k] = v;
       }

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireJudgeOrAdmin, audit } from "@/lib/auth-guards";
 import { judgeReviewSchema } from "@/lib/validation";
 import { computeTotal } from "@/lib/scoring";
+import { safeJsonArray } from "@/lib/safe-json";
 
 export async function POST(
   req: NextRequest,
@@ -53,7 +54,7 @@ export async function POST(
         where: { id: guard.user.id },
         select: { assignedCategories: true },
       });
-      const assigned: string[] = judge?.assignedCategories ? JSON.parse(judge.assignedCategories) : [];
+      const assigned: string[] = safeJsonArray<string>(judge?.assignedCategories ?? null);
       if (!assigned.includes(nomination.categoryId)) {
         return NextResponse.json(
           { error: "You are not assigned to this category" },
