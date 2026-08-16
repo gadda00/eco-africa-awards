@@ -1,23 +1,20 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { db } from "@/lib/db";
 import { awardCategories } from "@/lib/data";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, MapPin, Building2, Trophy, Quote, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
+import { safeGetWinner, safeGetWinnerMeta } from "@/lib/safe-queries";
 
-export const revalidate = 3600; // ISR — revalidate every hour
+export const revalidate = 3600;
 
 type Params = { year: string; slug: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
-  const winner = await db.nomination.findUnique({
-    where: { id: slug },
-    select: { nomineeName: true, winnerHighlight: true, nomineeCountry: true, categoryId: true, isPublic: true, status: true, winnerYear: true },
-  });
+  const winner = await safeGetWinnerMeta(slug);
   if (!winner || !winner.isPublic || winner.status !== "WINNER") {
     return { title: "Winner Not Found" };
   }
@@ -47,17 +44,8 @@ export default async function WinnerProfilePage({
 }: {
   params: Promise<Params>;
 }) {
-  const { year, slug } = await params;
-  const winner = await db.nomination.findUnique({
-    where: { id: slug },
-    include: {
-      reviews: {
-        take: 3,
-        orderBy: { totalScore: "desc" },
-        select: { totalScore: true, comments: true, recommendation: true },
-      },
-    },
-  });
+  const { slug } = await params;
+  const winner = await safeGetWinner(slug);
 
   if (!winner || !winner.isPublic || winner.status !== "WINNER") {
     notFound();
@@ -75,7 +63,8 @@ export default async function WinnerProfilePage({
 
           <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <Link href="/winners" className="inline-flex items-center gap-1.5 text-sm text-forest/80 hover:text-forest mb-6">
-              <ArrowLeft className="h-3.5 w-3.5" /> Hall of Fame
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Hall of Fame
             </Link>
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs uppercase tracking-[0.22em] font-semibold bg-gradient-to-r from-gold to-terracotta text-cream shadow-gold mb-4">
@@ -91,11 +80,13 @@ export default async function WinnerProfilePage({
               {winner.nomineeTitle && <span className="text-foreground/80 font-medium">{winner.nomineeTitle}</span>}
               {winner.nomineeOrg && (
                 <span className="inline-flex items-center gap-1.5 text-foreground/70">
-                  <Building2 className="h-4 w-4 text-forest" />{winner.nomineeOrg}
+                  <Building2 className="h-4 w-4 text-forest" />
+                  {winner.nomineeOrg}
                 </span>
               )}
               <span className="inline-flex items-center gap-1.5 text-foreground/70">
-                <MapPin className="h-4 w-4 text-forest" />{winner.nomineeCountry}
+                <MapPin className="h-4 w-4 text-forest" />
+                {winner.nomineeCountry}
               </span>
             </div>
 
@@ -132,7 +123,7 @@ export default async function WinnerProfilePage({
           </div>
         </section>
 
-        {winner.reviews.length > 0 && (
+        {winner.reviews && winner.reviews.length > 0 && (
           <section className="py-12 lg:py-16 bg-background">
             <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
               <h2 className="font-display text-2xl lg:text-3xl font-bold text-forest mb-6">
@@ -182,7 +173,9 @@ export default async function WinnerProfilePage({
                   </Link>
                 </Button>
                 <Button asChild className="bg-gradient-to-r from-gold to-terracotta hover:from-gold-light hover:to-terracotta text-cream font-semibold">
-                  <a href="/#nominate">Nominate next year <ArrowRight className="ml-1.5 h-4 w-4" /></a>
+                  <a href="/nominate">
+                    Nominate next year <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </a>
                 </Button>
               </div>
             </div>

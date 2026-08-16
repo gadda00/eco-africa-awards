@@ -1,10 +1,10 @@
-import { db } from "@/lib/db";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WinnersIndexClient } from "@/components/sections/winners-index-client";
 import { pastWinners, awardCategories } from "@/lib/data";
+import { safeGetLiveWinners } from "@/lib/safe-queries";
 
-export const revalidate = 3600; // ISR — revalidate every hour
+export const revalidate = 3600;
 
 export const metadata = {
   title: "Hall of Fame",
@@ -12,24 +12,8 @@ export const metadata = {
 };
 
 export default async function WinnersIndexPage() {
-  // Combine static + live winners
-  const liveWinners = await db.nomination.findMany({
-    where: {
-      status: "WINNER",
-      isPublic: true,
-    },
-    orderBy: { winnerYear: "desc" },
-    select: {
-      id: true,
-      nomineeName: true,
-      nomineeTitle: true,
-      nomineeOrg: true,
-      nomineeCountry: true,
-      categoryId: true,
-      winnerYear: true,
-      winnerHighlight: true,
-    },
-  });
+  // Live winners from DB (safe — returns [] if DB unavailable at build time)
+  const liveWinners = await safeGetLiveWinners();
 
   const allWinners = [
     ...liveWinners.map((w) => ({
@@ -40,7 +24,7 @@ export default async function WinnersIndexPage() {
       nomineeTitle: w.nomineeTitle,
       nomineeOrg: w.nomineeOrg,
       nomineeCountry: w.nomineeCountry,
-      categoryId: w.categoryId,
+      categoryId: "", // will be set below
       highlight: w.winnerHighlight ?? "",
     })),
     ...pastWinners.map((w) => ({

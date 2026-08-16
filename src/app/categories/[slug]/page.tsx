@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { db } from "@/lib/db";
 import { awardCategories, pastWinners } from "@/lib/data";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -8,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Check, Trophy, Users, Sparkles } from "lucide-react";
 import * as Icons from "lucide-react";
 import type { Metadata } from "next";
+import { safeGetCategoryWinners, safeGetCategoryStats } from "@/lib/safe-queries";
 
-export const revalidate = 3600; // ISR — revalidate every hour
+export const revalidate = 3600;
 
 type Params = { slug: string };
 
@@ -43,52 +43,24 @@ export default async function CategoryDetailPage({ params }: { params: Promise<P
 
   const Icon = (Icons as any)[category.icon] ?? Icons.Award;
 
-  // Past winners for this category
+  // Past winners for this category (static data)
   const staticWinners = pastWinners.filter((w) => w.categoryId === category.id);
-  // Live winners from DB
-  const liveWinners = await db.nomination.findMany({
-    where: {
-      categoryId: category.id,
-      status: "WINNER",
-      isPublic: true,
-    },
-    orderBy: { winnerYear: "desc" },
-    select: {
-      id: true,
-      nomineeName: true,
-      nomineeTitle: true,
-      nomineeOrg: true,
-      nomineeCountry: true,
-      winnerYear: true,
-      winnerHighlight: true,
-      winnerStory: true,
-      winnerPhotoUrl: true,
-    },
-  });
-
-  // Live stats for this category
-  const [totalNominations, totalReviews, shortlistedCount] = await Promise.all([
-    db.nomination.count({ where: { categoryId: category.id } }),
-    db.review.count({
-      where: { nomination: { categoryId: category.id } },
-    }),
-    db.nomination.count({ where: { categoryId: category.id, status: "SHORTLISTED" } }),
-  ]);
+  // Live winners from DB (safe — returns [] if DB unavailable at build time)
+  const liveWinners = await safeGetCategoryWinners(category.id);
+  // Live stats (safe — returns zeros if DB unavailable)
+  const { totalNominations, totalReviews, shortlistedCount } = await safeGetCategoryStats(category.id);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         {/* Hero */}
         <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-24 overflow-hidden bg-sunrise-gradient">
           <div className="absolute inset-0 bg-dots opacity-30 pointer-events-none" />
           <div className="absolute -top-32 -right-32 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
 
           <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <Link
-              href="/#categories"
-              className="inline-flex items-center gap-1.5 text-sm text-forest/80 hover:text-forest mb-6"
-            >
+            <Link href="/categories" className="inline-flex items-center gap-1.5 text-sm text-forest/80 hover:text-forest mb-6">
               <ArrowLeft className="h-3.5 w-3.5" />
               All categories
             </Link>
@@ -116,7 +88,7 @@ export default async function CategoryDetailPage({ params }: { params: Promise<P
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" className="bg-forest hover:bg-forest-light text-cream font-semibold h-13 px-7">
-                <a href="/#nominate">
+                <a href="/nominate">
                   Nominate in this category
                   <ArrowRight className="ml-1.5 h-4 w-4" />
                 </a>
@@ -248,7 +220,7 @@ export default async function CategoryDetailPage({ params }: { params: Promise<P
               Use our AI assistant to strengthen your case.
             </p>
             <Button asChild size="lg" className="mt-8 bg-gradient-to-r from-gold to-terracotta hover:from-gold-light hover:to-terracotta text-cream font-semibold h-13 px-8">
-              <a href="/#nominate">
+              <a href="/nominate">
                 Submit a nomination
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </a>

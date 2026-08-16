@@ -1,20 +1,20 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { db } from "@/lib/db";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArrowLeft, ArrowRight, Megaphone, Calendar } from "lucide-react";
 import Markdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import type { Metadata } from "next";
+import { safeGetAnnouncement, safeGetOtherAnnouncements, safeGetAnnouncementMeta } from "@/lib/safe-queries";
 
-export const revalidate = 3600; // ISR — revalidate every hour
+export const revalidate = 3600;
 
 type Params = { slug: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
-  const a = await db.announcement.findUnique({ where: { slug }, select: { title: true, excerpt: true, category: true, publishedAt: true } });
+  const a = await safeGetAnnouncementMeta(slug);
   if (!a) return { title: "Article Not Found" };
   return {
     title: a.title,
@@ -38,21 +38,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function NewsArticlePage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  const a = await db.announcement.findUnique({
-    where: { slug },
-  });
+  const a = await safeGetAnnouncement(slug);
 
   if (!a || !a.isPublished) notFound();
 
-  // Other announcements
-  const others = await db.announcement.findMany({
-    where: {
-      isPublished: true,
-      id: { not: a.id },
-    },
-    orderBy: { publishedAt: "desc" },
-    take: 3,
-  });
+  const others = await safeGetOtherAnnouncements(a.id, 3);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -60,10 +50,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
       <main className="flex-1">
         <article className="pt-32 pb-16 lg:pt-40 lg:pb-24">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <Link
-              href="/news"
-              className="inline-flex items-center gap-1.5 text-sm text-forest/80 hover:text-forest mb-6"
-            >
+            <Link href="/news" className="inline-flex items-center gap-1.5 text-sm text-forest/80 hover:text-forest mb-6">
               <ArrowLeft className="h-3.5 w-3.5" />
               All news
             </Link>

@@ -1,11 +1,10 @@
-import { db } from "@/lib/db";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import Link from "next/link";
 import { ArrowRight, Megaphone, Pin } from "lucide-react";
-import { siteConfig } from "@/lib/site-config";
+import { safeGetAnnouncements } from "@/lib/safe-queries";
 
-export const revalidate = 3600; // ISR — revalidate every hour
+export const revalidate = 3600;
 
 export const metadata = {
   title: "News & Announcements",
@@ -13,10 +12,7 @@ export const metadata = {
 };
 
 export default async function NewsPage() {
-  const announcements = await db.announcement.findMany({
-    where: { isPublished: true },
-    orderBy: [{ isPinned: "desc" }, { publishedAt: "desc" }],
-  });
+  const announcements = await safeGetAnnouncements(50);
 
   const pinned = announcements.filter((a) => a.isPinned);
   const rest = announcements.filter((a) => !a.isPinned);
