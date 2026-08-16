@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import { Search, Filter, Download, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -46,15 +46,29 @@ export function AdminNominationsClient({
   const [bulkLoading, setBulkLoading] = useState(false);
 
   // Clear selection whenever filters change (otherwise stale IDs persist)
-  useEffect(() => {
-    setSelected(new Set());
-  }, [filters.status, filters.categoryId, filters.country, filters.q, page]);
+  // Using a ref to track previous filter signature avoids the setState-in-effect warning.
+  const filterKey = `${filters.status}|${filters.categoryId}|${filters.country}|${filters.q}|${page}`;
+  const prevFilterKey = useRef(filterKey);
+  if (prevFilterKey.current !== filterKey) {
+    prevFilterKey.current = filterKey;
+    if (selected.size > 0) setSelected(new Set());
+  }
+
+  const updateFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(filters as any);
+    if (value) params.set(key, value);
+    else params.delete(key);
+    params.set("page", "1");
+    router.push(`/admin/nominations?${params.toString()}`);
+  };
 
   const [searchInput, setSearchInput] = useState(filters.q);
   const debouncedSearch = useDebouncedValue(searchInput, 350);
-  useEffect(() => {
-    if (debouncedSearch !== filters.q) updateFilter("q", debouncedSearch);
-  }, [debouncedSearch, filters.q]);
+  const prevDebounced = useRef(debouncedSearch);
+  if (prevDebounced.current !== debouncedSearch && debouncedSearch !== filters.q) {
+    prevDebounced.current = debouncedSearch;
+    updateFilter("q", debouncedSearch);
+  }
 
   const allChecked = nominations.length > 0 && selected.size === nominations.length;
   const someChecked = selected.size > 0 && !allChecked;
@@ -69,14 +83,6 @@ export function AdminNominationsClient({
     if (next.has(id)) next.delete(id);
     else next.add(id);
     setSelected(next);
-  };
-
-  const updateFilter = (key: string, value: string) => {
-    const params = new URLSearchParams(filters as any);
-    if (value) params.set(key, value);
-    else params.delete(key);
-    params.set("page", "1");
-    router.push(`/admin/nominations?${params.toString()}`);
   };
 
   const goToPage = (p: number) => {

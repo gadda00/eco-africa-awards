@@ -1,35 +1,27 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { HeroSection } from "@/components/sections/hero";
-import { AboutSection } from "@/components/sections/about";
-import { CategoriesSection } from "@/components/sections/categories";
-import { NominateSection } from "@/components/sections/nominate";
-import { SelectionSection } from "@/components/sections/selection";
-import { TimelineSection } from "@/components/sections/timeline";
-import { WinnersSection } from "@/components/sections/winners";
-import { AiFeaturesSection } from "@/components/sections/ai-features";
-import { CeremonySection } from "@/components/sections/ceremony";
-import { SponsorsSection } from "@/components/sections/sponsors";
-import { FaqSection } from "@/components/sections/faq";
-import { ContactSection } from "@/components/sections/contact";
+import { HomeHero } from "@/components/home/home-hero";
+import { HomeStats } from "@/components/home/home-stats";
+import { HomeCategories } from "@/components/home/home-categories";
+import { HomeTimeline } from "@/components/home/home-timeline";
+import { HomeNominate } from "@/components/home/home-nominate";
+import { HomeWinners } from "@/components/home/home-winners";
+import { HomeCeremony } from "@/components/home/home-ceremony";
+import { HomeCTA } from "@/components/home/home-cta";
 
 export default function Home() {
   return (
     <div className="relative min-h-screen flex flex-col bg-background">
       <SiteHeader />
       <main id="main" className="flex-1">
-        <HeroSection />
-        <AboutSection />
-        <CategoriesSection />
-        <NominateSection />
-        <SelectionSection />
-        <TimelineSection />
-        <WinnersSection />
-        <AiFeaturesSection />
-        <CeremonySection />
-        <SponsorsSection />
-        <FaqSection />
-        <ContactSection />
+        <HomeHero />
+        <HomeStats />
+        <HomeCategories />
+        <HomeTimeline />
+        <HomeNominate />
+        <HomeWinners />
+        <HomeCeremony />
+        <HomeCTA />
       </main>
       <SiteFooter />
     </div>

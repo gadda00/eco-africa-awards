@@ -235,25 +235,30 @@ export function NominateSection() {
   return (
     <section
       id="nominate"
-      className="relative py-24 lg:py-32 bg-gradient-to-b from-background via-secondary/40 to-background"
+      className="relative py-12 lg:py-20 bg-background"
     >
       <div className="absolute top-0 left-1/4 h-72 w-72 rounded-full bg-forest/8 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 h-72 w-72 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <SectionHeading
-          eyebrow="Submit a Nomination"
-          title={
-            <>
-              Five steps to honour a{" "}
-              <span className="text-gradient-sunset">climate leader.</span>
-            </>
-          }
-          description="Nominations are free, confidential, and open to anyone. Use our AI Nomination Assistant at any time to strengthen your case before submitting."
-        />
+        {/* Page hero */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs uppercase tracking-[0.22em] font-bold border border-gold/40 bg-gold/10 text-gold">
+            <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
+            Submit a Nomination
+          </div>
+          <h1 className="mt-5 font-display text-4xl lg:text-5xl font-bold text-forest">
+            Five steps to honour a{" "}
+            <span className="text-gradient-sunset italic">climate leader.</span>
+          </h1>
+          <p className="mt-4 text-lg text-foreground/70 max-w-2xl mx-auto">
+            Nominations are free, confidential, and open to anyone. Use our AI Nomination Assistant at any
+            time to strengthen your case before submitting.
+          </p>
+        </div>
 
         <Reveal delay={0.1}>
-          <div className="mt-12 relative overflow-hidden rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl">
+          <div className="mt-8 relative overflow-hidden rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl">
             <div className="absolute inset-0 bg-grid opacity-[0.05]" />
 
             {/* Stepper */}

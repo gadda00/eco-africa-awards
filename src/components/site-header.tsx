@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site-config";
 
 const navItems = [
-  { label: "About", href: "#about" },
-  { label: "Categories", href: "#categories" },
-  { label: "Nominate", href: "#nominate" },
-  { label: "Selection", href: "#selection" },
-  { label: "Timeline", href: "#timeline" },
-  { label: "Winners", href: "#winners" },
-  { label: "Ceremony", href: "#ceremony" },
-  { label: "FAQ", href: "#faq" },
+  { label: "About", href: "/about" },
+  { label: "Categories", href: "/categories" },
+  { label: "Nominate", href: "/nominate" },
+  { label: "Winners", href: "/winners" },
+  { label: "Ceremony", href: "/ceremony" },
+  { label: "Judges", href: "/judges" },
+  { label: "News", href: "/news" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export function SiteHeader() {
@@ -40,23 +40,23 @@ export function SiteHeader() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 lg:h-20 items-center justify-between">
           {/* Logo */}
-          <Link href="#top" className="group flex items-center gap-3">
-            <div className="relative h-10 w-10 lg:h-12 lg:w-12 rounded-2xl bg-gradient-to-br from-forest to-forest-light grid place-items-center shadow-forest transition-transform group-hover:scale-105">
+          <Link href="/" className="group flex items-center gap-2.5">
+            <div className="relative h-10 w-10 lg:h-12 lg:w-12 rounded-xl bg-gradient-to-br from-forest to-forest-light grid place-items-center shadow-forest transition-transform group-hover:scale-105">
               <AcaciaMark className="h-5 w-5 lg:h-6 lg:w-6 text-gold-light" />
-              <span className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/15" />
+              <span className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/15" />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-base lg:text-lg font-bold tracking-tight text-forest">
                 Africa Climate
               </span>
-              <span className="text-[10px] lg:text-xs uppercase tracking-[0.22em] text-gold font-semibold">
+              <span className="text-[10px] lg:text-xs uppercase tracking-[0.22em] text-gold font-bold">
                 Leadership Awards
               </span>
             </div>
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-0.5">
+          <nav className="hidden lg:flex items-center gap-0.5" aria-label="Primary">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -71,15 +71,8 @@ export function SiteHeader() {
 
           {/* CTAs */}
           <div className="hidden lg:flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="text-foreground/70 hover:text-forest">
-              <Link href="#ceremony">Attend</Link>
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              className="bg-forest hover:bg-forest-light text-cream font-semibold shadow-forest h-10 px-5"
-            >
-              <Link href="#nominate">Nominate Now</Link>
+            <Button asChild size="sm" className="bg-forest hover:bg-forest-light text-cream font-bold shadow-forest h-10 px-5">
+              <Link href="/nominate">Nominate Now</Link>
             </Button>
           </div>
 
@@ -88,6 +81,8 @@ export function SiteHeader() {
             className="lg:hidden grid h-10 w-10 place-items-center rounded-xl border border-forest/20 text-forest bg-white/60 backdrop-blur-sm"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -98,6 +93,7 @@ export function SiteHeader() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -114,14 +110,9 @@ export function SiteHeader() {
                   {item.label}
                 </Link>
               ))}
-              <div className="flex gap-2 mt-2">
-                <Button asChild variant="outline" size="sm" className="flex-1 border-forest/30 text-forest">
-                  <Link href="#ceremony" onClick={() => setMobileOpen(false)}>Attend</Link>
-                </Button>
-                <Button asChild size="sm" className="flex-1 bg-forest hover:bg-forest-light text-cream font-semibold">
-                  <Link href="#nominate" onClick={() => setMobileOpen(false)}>Nominate</Link>
-                </Button>
-              </div>
+              <Button asChild size="sm" className="mt-2 bg-forest hover:bg-forest-light text-cream font-bold">
+                <Link href="/nominate" onClick={() => setMobileOpen(false)}>Nominate Now</Link>
+              </Button>
             </nav>
           </motion.div>
         )}
@@ -130,15 +121,12 @@ export function SiteHeader() {
   );
 }
 
-/** A small "acacia tree" mark — hand-drawn SVG, no external assets */
 function AcaciaMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
-      {/* Canopy */}
       <ellipse cx="6" cy="9" rx="4" ry="2.5" />
       <ellipse cx="18" cy="9" rx="4" ry="2.5" />
       <ellipse cx="12" cy="7" rx="5" ry="3" />
-      {/* Trunk */}
       <rect x="11" y="11" width="2" height="11" />
     </svg>
   );

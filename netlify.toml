@@ -1,20 +1,21 @@
 [build]
-  command = "bun run build:netlify"
+  command = "npm install --legacy-peer-deps && npm run build:netlify"
   publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
   NEXT_USE_NETLIFY_EDGE = "true"
   NEXT_PUBLIC_SITE_URL = "https://ecoawardsafrica.com"
-  # REQUIRED: Set NEXTAUTH_SECRET in Netlify UI → Site settings → Environment variables.
+  # Required: set NEXTAUTH_SECRET in Netlify UI → Environment variables.
   # Generate with: openssl rand -base64 32
-  # The runtime will fail with a clear error if this is not set in production.
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
 [functions]
   included_files = ["prisma/**/*"]
+  node_bundler = "esbuild"
 
 # Security & caching headers
 [[headers]]
@@ -35,8 +36,6 @@
   for = "/api/*"
   [headers.values]
     Cache-Control = "no-store, no-cache, must-revalidate"
-    # Tighten CORS — only allow same-origin (override per-route if cross-origin needed)
-    Access-Control-Allow-Origin = "https://ecoawardsafrica.netlify.app"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PATCH, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
-    Access-Control-Allow-Credentials = "true"
